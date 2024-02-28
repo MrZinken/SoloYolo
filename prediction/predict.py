@@ -5,7 +5,7 @@ import os
 # model = YOLO('yolov8n-seg.pt')  # load an official model
 # load a custom model
 model = YOLO(
-    '/home/kai/Desktop/Documents/SoloYolo/runs/segment/train8/weights/best.pt')
+    '/home/kai/Desktop/Documents/SoloYolo/runs/segment/train9/weights/best.pt')
 
 # Input and output folders
 input_folder = '/home/kai/Desktop/sliced'
@@ -23,7 +23,7 @@ for filename in os.listdir(input_folder):
         output_path = os.path.join(output_folder, filename)
 
 # Predict with the model
-        results = model(input_path, conf=0.7)  # predict on an image
+        results = model(input_path, conf=0.4)  # predict on an image
 
     # Save the results with the same filename as the input
         base_filename = os.path.splitext(filename)[0]
@@ -35,4 +35,4 @@ for filename in os.listdir(input_folder):
             result.show()  # display to screen
             # Save with different filenames if multiple results
             result.save(filename=os.path.join(
-                output_folder, f'{base_filename}_{i}.jpg'))
+                output_folder, f'{base_filename}.jpg'))

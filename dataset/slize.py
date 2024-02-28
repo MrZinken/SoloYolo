@@ -1,44 +1,47 @@
 from PIL import Image
-import os
 
-# Function to resize the image
-def resize_image(image, width):
-    aspect_ratio = float(width) / image.width
-    height = int(image.height * aspect_ratio)
-    resized_image = image.resize((width, height))
-    return resized_image
 
-# Function to slice the resized image into 640x640 images
-def slice_image(image, slice_size):
-    slices = []
-    img_width, img_height = image.size
-    for y in range(0, img_height, slice_size):
-        for x in range(0, img_width, slice_size):
-            box = (x, y, x + slice_size, y + slice_size)
-            slice_img = image.crop(box)
-            slices.append(slice_img)
-    return slices
+def convert_tiff_to_png(input_folder):
+    # Open the TIFF image
+    tiff_image = Image.open(input_folder)
 
-# Directory containing the original images
-input_directory = '/home/kai/Desktop/2slice'
+    # Convert to RGB mode
+    rgb_image = tiff_image.convert("RGB")
 
-# Create a directory to save the sliced images
-output_directory = '/home/kai/Desktop/sliced'
-os.makedirs(output_directory, exist_ok=True)
+    # convert
+    resized_img = rgb_image.resize((9600, 9600), resample=Image.LANCZOS)
 
-# Iterate over each image file in the input directory
-for filename in os.listdir(input_directory):
-    # Check if the file is an image (you may want to add more robust checks)
-    if filename.endswith('.tif') or filename.endswith('.png'):
-        # Open the original image
-        original_image = Image.open(os.path.join(input_directory, filename))
+    return resized_img
 
-        # Resize the original image to a width of 9600 pixels
-        resized_image = resize_image(original_image, 9600)
 
-        # Slice the resized image into images of width 640 pixels
-        sliced_images = slice_image(resized_image, 640)
+def split_image(output_folder, piece_size):
+    # Open the image
+    img = convert_tiff_to_png(input_folder)
 
-        # Save the sliced images
-        for i, img in enumerate(sliced_images):
-            img.save(os.path.join(output_directory, f'{os.path.splitext(filename)[0]}_sliced_{i}.jpg'))
+    # Get the size of the image
+    width, height = img.size
+
+    # Calculate the number of rows and columns
+    num_rows = height // piece_size
+    num_cols = width // piece_size
+
+    # Iterate through the image and save each piece
+    for row in range(num_rows):
+        for col in range(num_cols):
+            left = col * piece_size
+            upper = row * piece_size
+            right = left + piece_size
+            lower = upper + piece_size
+
+            # Crop the piece
+            piece = img.crop((left, upper, right, lower))
+
+            # Save the piece
+            piece.save(f"{output_folder}/piece_{row}_{col}.jpg")
+
+
+# Example usage:
+input_folder = "/home/kai/Desktop/2slice/63752100.tif"
+output_folder = "/home/kai/Desktop/sliced"
+piece_size = 640  # Specify the size of each piece in pixels
+split_image(output_folder, piece_size)
