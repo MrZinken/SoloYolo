@@ -20,10 +20,10 @@ def slice_image(image, slice_size):
     return slices
 
 # Directory containing the original images
-input_directory = '/home/kai/Desktop/data/bonn/mitpanel'
+input_directory = '/home/kai/Desktop/2slice'
 
 # Create a directory to save the sliced images
-output_directory = '/home/kai/Desktop/data/bonn/sliced'
+output_directory = '/home/kai/Desktop/sliced'
 os.makedirs(output_directory, exist_ok=True)
 
 # Iterate over each image file in the input directory
