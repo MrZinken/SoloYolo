@@ -1,16 +1,16 @@
 task: segment
 mode: train
-model: yolov8n-seg.pt
-data: /home/kai/Desktop/dataset/data.yaml
-epochs: 7
+model: yolov8m-seg.pt
+data: /home/kai/Documents/solar/data.yaml
+epochs: 100
 time: null
 patience: 100
-batch: 8
+batch: 32
 imgsz: 640
 save: true
 save_period: -1
 cache: false
-device: cpu
+device: cuda
 workers: 8
 project: null
 name: train4
@@ -102,4 +102,4 @@ erasing: 0.4
 crop_fraction: 1.0
 cfg: null
 tracker: botsort.yaml
-save_dir: /home/kai/Documents/SoloYolo/runs/segment/train4
+save_dir: runs/segment/train4

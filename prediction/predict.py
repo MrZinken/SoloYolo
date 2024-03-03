@@ -5,11 +5,11 @@ import os
 # model = YOLO('yolov8n-seg.pt')  # load an official model
 # load a custom model
 model = YOLO(
-    '/home/kai/Desktop/Documents/SoloYolo/runs/segment/train9/weights/best.pt')
+    '/home/kai/Documents/SoloYolo/runs/segment/train5/weights/best.pt')
 
 # Input and output folders
-input_folder = '/home/kai/Desktop/sliced'
-output_folder = '/home/kai/Desktop/predicted'
+input_folder = '/home/kai/Documents/solar/test/images'
+output_folder = '/home/kai/Desktop/predicted4'
 
 # Create output folder if it doesn't exist
 os.makedirs(output_folder, exist_ok=True)
@@ -23,7 +23,7 @@ for filename in os.listdir(input_folder):
         output_path = os.path.join(output_folder, filename)
 
 # Predict with the model
-        results = model(input_path, conf=0.4)  # predict on an image
+        results = model(input_path, conf=0.1)  # predict on an image
 
     # Save the results with the same filename as the input
         base_filename = os.path.splitext(filename)[0]
