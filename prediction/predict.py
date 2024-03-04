@@ -8,8 +8,9 @@ model = YOLO(
     '/home/kai/Documents/SoloYolo/runs/segment/train5/weights/best.pt')
 
 # Input and output folders
-input_folder = '/home/kai/Documents/solar/test/images'
-output_folder = '/home/kai/Desktop/predicted4'
+#input_folder = '/home/kai/Desktop/dataset/test/images'
+input_folder = '/home/kai/Desktop/sliced'
+output_folder = '/home/kai/Desktop/test'
 
 # Create output folder if it doesn't exist
 os.makedirs(output_folder, exist_ok=True)
@@ -23,7 +24,7 @@ for filename in os.listdir(input_folder):
         output_path = os.path.join(output_folder, filename)
 
 # Predict with the model
-        results = model(input_path, conf=0.1)  # predict on an image
+        results = model(input_path, conf=0.4)  # predict on an image
 
     # Save the results with the same filename as the input
         base_filename = os.path.splitext(filename)[0]
@@ -32,6 +33,8 @@ for filename in os.listdir(input_folder):
             masks = result.masks  # Masks object for segmentation masks outputs
             keypoints = result.keypoints  # Keypoints object for pose outputs
             probs = result.probs  # Probs object for classification outputs
+
+
             result.show()  # display to screen
             # Save with different filenames if multiple results
             result.save(filename=os.path.join(
