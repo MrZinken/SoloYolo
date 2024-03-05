@@ -1,5 +1,9 @@
 from ultralytics import YOLO
+import numpy as np
+from PIL import Image
 import os
+import functions
+
 
 # Load a model
 # model = YOLO('yolov8n-seg.pt')  # load an official model
@@ -8,7 +12,6 @@ model = YOLO(
     '/home/kai/Documents/SoloYolo/runs/segment/train5/weights/best.pt')
 
 # Input and output folders
-#input_folder = '/home/kai/Desktop/dataset/test/images'
 input_folder = '/home/kai/Desktop/sliced'
 output_folder = '/home/kai/Desktop/test'
 
@@ -34,8 +37,20 @@ for filename in os.listdir(input_folder):
             keypoints = result.keypoints  # Keypoints object for pose outputs
             probs = result.probs  # Probs object for classification outputs
 
+            print('Number of objects in the picture: ', len(masks))     # number of detected objects
 
-            result.show()  # display to screen
+            mask = functions.create_mask(masks)
+
+            # Specify the output file path for the composite mask image
+            output_path = os.path.join(
+                output_folder, f'{base_filename}_composite_mask.png')
+            
+            # Save the composite mask image
+            mask.save(output_path)
+
+            area = functions.calculate_area(mask)
+
+            #result.show()  # display to screen
             # Save with different filenames if multiple results
             result.save(filename=os.path.join(
                 output_folder, f'{base_filename}.jpg'))
