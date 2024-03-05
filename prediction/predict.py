@@ -37,20 +37,29 @@ for filename in os.listdir(input_folder):
             keypoints = result.keypoints  # Keypoints object for pose outputs
             probs = result.probs  # Probs object for classification outputs
 
-            print('Number of objects in the picture: ', len(masks))     # number of detected objects
-
-            mask = functions.create_mask(masks)
+            #print('Number of objects in the picture: ', len(masks))     # number of detected objects
+            if masks is not None:
+    
+                mask = functions.create_mask(masks)
 
             # Specify the output file path for the composite mask image
-            output_path = os.path.join(
-                output_folder, f'{base_filename}_composite_mask.png')
+                output_path = os.path.join(output_folder, f'{base_filename}.png')
             
             # Save the composite mask image
-            mask.save(output_path)
+                mask.save(output_path)
 
-            area = functions.calculate_area(mask)
+            else:
+
+                # Create a new black image
+                black_image = Image.new("RGB", (640, 640), color="black")
+
+                # Save the image
+                output_path = os.path.join(output_folder, f'{base_filename}.png')
+                black_image.save(output_path)
+
+            #area = functions.calculate_area(mask)
 
             #result.show()  # display to screen
             # Save with different filenames if multiple results
-            result.save(filename=os.path.join(
-                output_folder, f'{base_filename}.jpg'))
+            #result.save(filename=os.path.join(
+                #output_folder, f'{base_filename}.jpg'))

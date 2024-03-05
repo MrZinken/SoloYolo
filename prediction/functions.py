@@ -1,6 +1,6 @@
 import numpy as np
 from PIL import Image
-import solaris as sol
+#import solaris as sol
 
 
 
@@ -8,8 +8,7 @@ def create_mask(masks):
     # Assuming `masks` is a list containing segmentation masks obtained from the YOLO model
 
     # Create an empty composite mask array
-    composite_mask = np.zeros_like(
-        masks[0].data[0].numpy(), dtype=np.uint8)
+    composite_mask = np.zeros_like(masks[0].data[0].numpy(), dtype=np.uint8)
 
     # Assign different intensity values to each mask and overlay them onto the composite mask
     for i, mask in enumerate(masks, start=1):
