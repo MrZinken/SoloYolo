@@ -5,11 +5,8 @@ import os
 import functions
 
 
-# Load a model
-# model = YOLO('yolov8n-seg.pt')  # load an official model
 # load a custom model
-model = YOLO(
-    '/home/kai/Documents/SoloYolo/runs/segment/train5/weights/best.pt')
+model = YOLO('/home/kai/Documents/SoloYolo/runs/segment/train5/weights/best.pt')
 
 # Input and output folders
 input_folder = '/home/kai/Desktop/sliced'
@@ -22,12 +19,12 @@ os.makedirs(output_folder, exist_ok=True)
 # Iterate over the files in the input folder
 for filename in os.listdir(input_folder):
     # Filter by supported image formats
-    if filename.endswith(('.jpg', '.jpeg', '.png')):
+    if filename.endswith(('.jpg', '.jpeg', '.png', '.tif')):
         input_path = os.path.join(input_folder, filename)
         output_path = os.path.join(output_folder, filename)
-
+        if input_path.shape == (640, 640, 3):
 # Predict with the model
-        results = model(input_path, conf=0.4)  # predict on an image
+            results = model(input_path, conf=0.4)  # predict on an image
 
     # Save the results with the same filename as the input
         base_filename = os.path.splitext(filename)[0]
