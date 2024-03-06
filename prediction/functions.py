@@ -1,7 +1,7 @@
 import numpy as np
 from PIL import Image
 
-import solaris as sol
+#import solaris as sol
 
 
 
