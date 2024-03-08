@@ -9,7 +9,7 @@ import functions
 # model = YOLO('yolov8n-seg.pt')  # load an official model
 # load a custom model
 model = YOLO(
-    '/home/kai/Documents/SoloYolo/runs/segment/train5/weights/best.pt')
+    '/home/kai/Documents/SoloYolo/runs/segment/train6/weights/best.pt')
 
 # Input and output folders
 input_folder = '/home/kai/Desktop/sliced'

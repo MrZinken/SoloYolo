@@ -3,9 +3,9 @@ from ultralytics import YOLO
 model = YOLO("yolov8m-seg.pt")
 
 results = model.train(
-        batch=18,
+        batch=20,
         device="cuda",
-        data="/home/kai/Documents/solar/data.yaml",
+        data="/home/kai/Documents/solar/v6/data.yaml",
         epochs=100,
         imgsz=640,
     )
