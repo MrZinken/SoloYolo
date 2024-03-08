@@ -4,12 +4,12 @@ import math
 from ultralytics import YOLO
 from PIL import Image
 import os
-
+import shutil
 
 
 def predict(image):
     # Predict with the model
-    results = model(input_image, conf=0.4)  # predict on an image
+    results = model(input_image, conf=0.4, classes=0)  # predict on an image
     # Save the results with the same filename as the input
     base_filename = os.path.splitext(filename)[0]
     for i, result in enumerate(results):
@@ -40,12 +40,34 @@ def predict(image):
                 #output_folder, f'{base_filename}.jpg'))
 
 
+def create_mask(masks):
+    # Assuming `masks` is a list containing segmentation masks obtained from the YOLO model
+
+    # Create an empty composite mask array
+    composite_mask = np.zeros_like(masks[0].data[0].numpy(), dtype=np.uint8)
+
+    # Assign different intensity values to each mask and overlay them onto the composite mask
+    for i, mask in enumerate(masks, start=1):
+        # Assign a unique intensity value (255/i) to each mask
+        mask_data = (mask.data[0].numpy() *
+                     (255 // i)).astype(np.uint8)
+        # Add the mask to the composite mask
+        composite_mask += mask_data
+
+    # Create an image from the composite mask array
+    mask_img = Image.fromarray(composite_mask, "L")
+
+        # Binarize the mask (thresholding)
+    threshold = 2  # Adjust the threshold value as needed
+    binary_mask = mask_img.point(lambda x: 0 if x < threshold else 255, '1')
+
+    # return the composite mask image
+    return binary_mask
+
+
+
 def split_image(image):
     #splits the image into 640 by 640 pixels tiles so it can be processed by the model
-
-    tile_folder = os.path.join(input_folder, 'tiles')
-    # Create output folder if it doesn't exist
-    os.makedirs(tile_folder, exist_ok=True)
 
     # Get the size of the image
     width, height = image.size
@@ -70,81 +92,54 @@ def split_image(image):
             lower = upper + 640
 
             # Crop the piece
-            piece = image.crop((left, upper, right, lower))
-
+            piece = img_resized.crop((left, upper, right, lower))
+            # Convert the piece to "RGB" mode before saving as PNG
+            piece = piece.convert("RGB")
             # Save the piece with filename as part of the name
-            piece_filename = f"piece_{row}_{col}.jpg"
-            piece_path = os.path.join(tile_folder, piece_filename)
+            piece_filename = f"piece_{row}_{col}.png"
+            piece_path = os.path.join(tmp_folder, piece_filename)
             piece.save(piece_path)
 
-def merge_images(tile_folder):
+    return num_rows, num_cols
+
+def merge_images(num_rows, num_cols, filename):
     # Create a new blank image to merge pieces onto
     merged_image = Image.new("RGB", (num_cols * 640, num_rows * 640))
 
     # Iterate through the pieces and paste them onto the merged image
     for row in range(num_rows):
         for col in range(num_cols):
-            piece_filename = f"{os.path.splitext(os.path.basename(input_folder))[0]}_piece_{row}_{col}.jpg"
-            piece_path = os.path.join(input_folder, piece_filename)
+            piece_filename = f"piece_{row}_{col}.png"
+            piece_path = os.path.join(output_folder, piece_filename)
             if os.path.exists(piece_path):
                 piece = Image.open(piece_path)
                 merged_image.paste(piece, (col * 640, row * 640))
+                #os.remove(piece_path)
             else:
                 print(f"Piece {piece_filename} not found.")
+
+    jpg_path = os.path.join(output_folder, filename)
     finale_img = merged_image.resize((10000, 10000), resample=Image.BOX)
-    finale_img.save(output_path)
+    finale_img.save(jpg_path)
 
-def convert_to_jpg(tiff_path):
-    # Open the TIFF image
-    tiff_img = Image.open(tiff_path)
 
-    # Create a subfolder with the same name as the TIFF file
-    folder_name = os.path.splitext(os.path.basename(tiff_path))[0]
-    subfolder_path = os.path.join(os.path.dirname(tiff_path), folder_name)
-    os.makedirs(subfolder_path, exist_ok=True)
+
+def convert_to_png(tiff_image, filename):
+
 
     # Convert the image to JPG and PNG
-    jpg_img = tiff_img.convert("RGB")
+    jpg_img = tiff_image.convert("RGB")
 
     # Save JPG in the subfolder
-    jpg_path = os.path.join(subfolder_path, folder_name + ".jpg")
+    base_name, _ = os.path.splitext(filename)
+    filename = (base_name + ".png")
+    jpg_path = os.path.join(tmp_folder, filename)
     jpg_img.save(jpg_path, optimize=True, quality=95)  # Optimize JPG
 
-    return jpg_path
+    return filename
 
 
-def create_mask(masks):
-    # Assuming `masks` is a list containing segmentation masks obtained from the YOLO model
 
-    # Create an empty composite mask array
-    composite_mask = np.zeros_like(masks[0].data[0].numpy(), dtype=np.uint8)
-
-    # Assign different intensity values to each mask and overlay them onto the composite mask
-    for i, mask in enumerate(masks, start=1):
-        # Assign a unique intensity value (255/i) to each mask
-        mask_data = (mask.data[0].numpy() *
-                     (255 // i)).astype(np.uint8)
-        # Add the mask to the composite mask
-        composite_mask += mask_data
-
-    # Create an image from the composite mask array
-    mask_img = Image.fromarray(composite_mask, "L")
-
-    # return the composite mask image
-    return mask_img
-
-def calculate_area(mask):
-    #calculate the area of the mask in square meter
-            
-    # Calculate the number of non-zero pixels in the mask
-    num_pixels = np.count_nonzero(mask)
-    print("Number of pixels in the mask: ", num_pixels)
-
-    #0.0006781684 is the area of one pixel in m². It is calculated by 9600 pixels square and an area of 250m square
-    area_in_m2= 0.0006781684*num_pixels
-    print("Area of pixels in the mask in m²: ", round(area_in_m2, 2))
-    
-    return area_in_m2
 
 
 # load a custom model
@@ -153,34 +148,43 @@ model = YOLO('/home/kai/Documents/SoloYolo/runs/segment/train5/weights/best.pt')
 # Input and output folders
 input_folder = '/home/kai/Desktop/input'
 output_folder = '/home/kai/Desktop/output'
-tile_folder = '/home/kai/Desktop/input/tiles'
-predicted_tile_folder = '/home/kai/Desktop/predicted_input/tiles'
-num_rows = 0
-num_cols = 0
+tmp_folder = '/home/kai/Desktop/tmp'
+
 # Create output folder if it doesn't exist
 os.makedirs(output_folder, exist_ok=True)
+os.makedirs(tmp_folder, exist_ok=True)
 
 
 # Iterate over the files in the input folder
 for filename in os.listdir(input_folder):
+    
+    input_path = os.path.join(input_folder, filename)
     # Filter by supported image formats
     if filename.endswith(('.tiff', 'tif')):
-        input_path = os.path.join(input_folder, filename)
-        input_image = Image.open(convert_to_jpg(input_path))
-        
-        
-    if filename.endswith(('.jpg', '.jpeg', '.png')):
-        input_path = os.path.join(input_folder, filename)
         input_image = Image.open(input_path)
-        output_path = os.path.join(output_folder, filename)
+        filename = convert_to_png(input_image, filename)
+        finale_filename = filename
+
+    if filename.endswith(('.jpg', '.jpeg', '.png')):
+        destination_file_path = os.path.join(tmp_folder, filename)
+        # Copy the file to the destination folder
+        shutil.copyfile(input_path, destination_file_path)
+    
+    input_path = os.path.join(tmp_folder, filename)
+    input_image = Image.open(input_path)
+    if input_image.size == (640, 640):
+        predict(input_image)
     else:
-        if input_image.size == (640, 640):
+        num_rows, num_cols = split_image(input_image)
+        os.remove(input_path)
+        for filename in os.listdir(tmp_folder):
+            input_path = os.path.join(tmp_folder, filename)
+            input_image = Image.open(input_path)
             predict(input_image)
-        else:
-            split_image(input_image)
-            
-            for filename in tile_folder:
-                predict(input_image)
-                merge_images(tile_folder)
+            os.remove(input_path)
+        merge_images(num_rows, num_cols, finale_filename)
+
+
+    
             
         
