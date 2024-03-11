@@ -95,15 +95,21 @@ def create_mask(masks):
     return binary_mask
 
 
-def remove_black_lines(binary_mask, line_thickness):
-    # Convert binary mask to grayscale
-    gray_mask = cv2.cvtColor(binary_mask, cv2.COLOR_BGR2GRAY)
+def connect_close_masks(binary_mask, kernel_size):
+    # Apply morphological closing to fill small gaps between blocks
+    kernel = np.ones((kernel_size, kernel_size), np.uint8)
+    closed_mask = cv2.morphologyEx(binary_mask, cv2.MORPH_CLOSE, kernel)
 
-    # Apply morphological dilation to remove black lines
-    kernel = np.ones((line_thickness, line_thickness), np.uint8)
-    dilated_mask = cv2.dilate(gray_mask, kernel, iterations=1)
+    # Find contours in the closed mask
+    contours, _ = cv2.findContours(closed_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    return dilated_mask
+    # Create a blank mask for the massive block
+    massive_block_mask = np.zeros_like(binary_mask)
+
+    # Draw contours of all connected components onto the mask
+    cv2.drawContours(massive_block_mask, contours, -1, 255, thickness=cv2.FILLED)
+
+    return massive_block_mask
 
 
 def convert_to_jpg(tiff_path):
@@ -148,7 +154,7 @@ for filename in os.listdir(input_folder):
             input_image = Image.open(tile_path)
             predict(input_image)
         image = cv2.imread(merge_images(tile_folder))   #remove seperating lines between masks
-        finale_image = remove_black_lines(image, 20)
+        finale_image = connect_close_masks(image, 20)
         output_path = os.path.join(output_folder, base_filename + ".png") 
         cv2.imwrite(output_path, finale_image)
 
