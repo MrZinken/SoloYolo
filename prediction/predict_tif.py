@@ -96,9 +96,17 @@ def create_mask(masks):
 
 
 def connect_close_masks(binary_mask, kernel_size):
+
+    # Ensure binary mask is in uint8 format
+    binary_mask = binary_mask.astype(np.uint8)
+    
+    # Convert RGB binary mask to grayscale
+    grayscale_mask = cv2.cvtColor(binary_mask, cv2.COLOR_BGR2GRAY)
+
+    
     # Apply morphological closing to fill small gaps between blocks
     kernel = np.ones((kernel_size, kernel_size), np.uint8)
-    closed_mask = cv2.morphologyEx(binary_mask, cv2.MORPH_CLOSE, kernel)
+    closed_mask = cv2.morphologyEx(grayscale_mask, cv2.MORPH_CLOSE, kernel)
 
     # Find contours in the closed mask
     contours, _ = cv2.findContours(closed_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -107,7 +115,7 @@ def connect_close_masks(binary_mask, kernel_size):
     massive_block_mask = np.zeros_like(binary_mask)
 
     # Draw contours of all connected components onto the mask
-    cv2.drawContours(massive_block_mask, contours, -1, 255, thickness=cv2.FILLED)
+    cv2.drawContours(massive_block_mask, contours, -1, (255, 255, 255), thickness=cv2.FILLED)
 
     return massive_block_mask
 
