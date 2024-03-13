@@ -60,5 +60,3 @@ world_file = "/home/kai/Desktop/62752000.tfw"
 output_gpkg = "/home/kai/Desktop/62752000.gpkg"
 raster_to_vector(png_file, world_file, output_gpkg)
 
-
-#processing.run("gdal:polygonize", {'INPUT':'/home/kai/Desktop/62752000.png','BAND':1,'FIELD':'DN','EIGHT_CONNECTEDNESS':False,'EXTRA':'','OUTPUT':'TEMPORARY_OUTPUT'})

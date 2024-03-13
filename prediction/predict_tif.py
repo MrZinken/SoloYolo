@@ -161,7 +161,8 @@ for filename in os.listdir(input_folder):
             tile_path = os.path.join(tile_folder, filename)
             input_image = Image.open(tile_path)
             predict(input_image)
-        image = cv2.imread(merge_images(tile_folder))   #remove seperating lines between masks
+        image = cv2.imread(merge_images(tile_folder))   
+        #remove seperating lines between masks
         finale_image = connect_close_masks(image, 20)
         output_path = os.path.join(output_folder, base_filename + ".png") 
         cv2.imwrite(output_path, finale_image)
