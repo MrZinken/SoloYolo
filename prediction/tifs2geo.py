@@ -4,7 +4,7 @@ from ultralytics import YOLO
 from osgeo import gdal, ogr, osr
 import cv2
 import os
-from io import BytesIO
+
 
 
 def convert_to_resized_jpg(tiff_path):
@@ -210,25 +210,28 @@ def raster_to_vector(tif_file, world_file, output_gpkg, target_srs=None):
     tif_ds = None
 
 
-def combine_geopackages_folder(input_folder, output_geopackage):
+def combine_geopackages(input_folder, output_geopackage):
     """
-    Combines multiple GeoPackages from a folder into a single GeoPackage.
+    Combines features from multiple GeoPackages into a single GeoPackage.
 
     Parameters:
         input_folder (str): Path to the folder containing input GeoPackage files.
         output_geopackage (str): Output GeoPackage filename.
     """
-    # List all files in the input folder
-    input_geopackages = [os.path.join(input_folder, file) for file in os.listdir(input_folder) if file.endswith('.gpkg')]
-
-    # Check if there are any GeoPackage files in the folder
-    if not input_geopackages:
-        print("Error: No GeoPackage files found in the input folder.")
-        return
-
     # Create output GeoPackage
     driver = ogr.GetDriverByName("GPKG")
     out_ds = driver.CreateDataSource(output_geopackage)
+
+    # Check if the output GeoPackage creation was successful
+    if out_ds is None:
+        print(f"Error: Failed to create output GeoPackage {output_geopackage}.")
+        return
+
+    # List all files in the input folder
+    input_geopackages = [os.path.join(input_folder, file) for file in os.listdir(input_folder) if file.endswith('.gpkg')]
+
+    # Track the current fid value
+    current_fid = 0
 
     # Iterate over input GeoPackages
     for input_geopackage in input_geopackages:
@@ -242,25 +245,30 @@ def combine_geopackages_folder(input_folder, output_geopackage):
         for i in range(in_ds.GetLayerCount()):
             layer = in_ds.GetLayerByIndex(i)
 
-            # Create corresponding layer in output GeoPackage
-            out_layer = out_ds.CreateLayer(layer.GetName(), layer.GetSpatialRef(), layer.GetGeomType())
+            # Create corresponding layer in output GeoPackage if it doesn't exist
+            if out_ds.GetLayerByName(layer.GetName()) is None:
+                out_layer = out_ds.CreateLayer(layer.GetName(), layer.GetSpatialRef(), layer.GetGeomType())
 
-            # Copy fields from input to output layer
-            layer_defn = layer.GetLayerDefn()
-            for j in range(layer_defn.GetFieldCount()):
-                field_defn = layer_defn.GetFieldDefn(j)
-                out_layer.CreateField(field_defn)
+                # Copy fields from input to output layer
+                layer_defn = layer.GetLayerDefn()
+                for j in range(layer_defn.GetFieldCount()):
+                    field_defn = layer_defn.GetFieldDefn(j)
+                    out_layer.CreateField(field_defn)
+
+            else:
+                # Get existing layer
+                out_layer = out_ds.GetLayerByName(layer.GetName())
 
             # Copy features from input to output layer
             for feature in layer:
+                # Assign a new fid value
+                current_fid += 1
+                feature.SetFID(current_fid)
                 out_layer.CreateFeature(feature)
-
         # Close input GeoPackage
         in_ds = None
-
     # Close output GeoPackage
     out_ds = None
-
 
 
 # load a custom model
