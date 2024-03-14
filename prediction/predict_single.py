@@ -31,13 +31,13 @@ def create_mask(masks):
 
 
 
-def predict(image_path):
+def predict(image_path, object_class = 0):
     image = Image.open(image_path)
     # Save the results with the same filename as the input
     base_filename = os.path.splitext(image_path)[0]
 
     # Predict with the model
-    results = model(image, conf=0.4)  # predict on an image
+    results = model(image, conf=0.4, classes = object_class)  # predict on an image
     for i, result in enumerate(results):
         #boxes = result.boxes  # Boxes object for bounding box outputs
         masks = result.masks  # Masks object for segmentation masks outputs
@@ -66,6 +66,23 @@ def predict(image_path):
 model = YOLO('/home/kai/Documents/SoloYolo/runs/segment/best/best.pt')
 # Input and output folders
 input_image_path = '/home/kai/Desktop/beispiel.jpg'
-output_folder = '/home/kai/Desktop/'
+input_image_folder = '/home/kai/Desktop/input'
+output_folder = '/home/kai/Desktop/output'
 
-predict(input_image_path)
+predict_folder = True
+# 0 = solar panel
+# 1 = solar thermie
+# 2 = roof window
+object_class = 0
+
+
+if predict_folder:
+    #predict folder
+    for filename in os.listdir(input_image_folder):
+        tile_path = os.path.join(input_image_folder, filename)
+        input_image = Image.open(tile_path)
+        #predict and create binary mask png
+        predict(input_image, object_class)
+else:
+    #predict single image
+    predict(input_image_path) 

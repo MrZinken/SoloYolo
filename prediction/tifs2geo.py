@@ -323,4 +323,4 @@ for filename in os.listdir(input_folder):
         raster_to_vector(tif_path, world_file, output_gpkg, target_srs=25832)
         os.remove(tif_path)
 
-combine_geopackages_folder(output_folder, output_geopackage)
+combine_geopackages(output_folder, output_geopackage)
