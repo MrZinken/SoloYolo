@@ -107,10 +107,10 @@ def merge_images_resize(tile_folder):
     return merged_image
 
 
-
-
-
 def connect_close_masks(binary_mask, kernel_size):
+    #connect masks, that belong to one entity, 
+    #but are seperated because of slicing and detection errors
+    
     # Convert Image to NumPy array
     binary_mask_np = np.array(binary_mask) 
     # Ensure binary mask is in uint8 format
@@ -133,25 +133,24 @@ def connect_close_masks(binary_mask, kernel_size):
     # Draw contours of all connected components onto the mask
     cv2.drawContours(massive_block_mask, contours, -1,
                      (255, 255, 255), thickness=cv2.FILLED)
-    
-
 
     return massive_block_mask
 
-def convert_png_to_tif(input_array):
 
+def convert_png_to_tif(input_array):
     # Convert the NumPy array to a PIL Image
+
     pil_image = Image.fromarray(input_array)
 
     tif_path = os.path.join(output_folder, f'{base_filename}.tif')
-
-    # Save the PIL Image as a TIFF file
     pil_image.save(tif_path)
+
     return tif_path
 
 
 def raster_to_vector(tif_file, world_file, output_gpkg, target_srs=None):
     # Read TIFF mask and its world file to get georeferenced extent
+
     tif_ds = gdal.Open(tif_file)
     world_transform = np.loadtxt(world_file)
     pixel_width = world_transform[0]
