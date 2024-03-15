@@ -63,10 +63,10 @@ def predict(image_path, object_class = 0):
 """
 
 # load a custom model
-model = YOLO('/home/kai/Documents/SoloYolo/runs/segment/best/best.pt')
+model = YOLO('/home/kai/Documents/SoloYolo/runs/segment/train/weights/best.pt')
 # Input and output folders
 input_image_path = '/home/kai/Desktop/beispiel.jpg'
-input_image_folder = '/home/kai/Desktop/input'
+input_image_folder = '/home/kai/Desktop/test/images'
 output_folder = '/home/kai/Desktop/output'
 
 predict_folder = True
@@ -79,10 +79,10 @@ object_class = 0
 if predict_folder:
     #predict folder
     for filename in os.listdir(input_image_folder):
-        tile_path = os.path.join(input_image_folder, filename)
-        input_image = Image.open(tile_path)
+        image_path = os.path.join(input_image_folder, filename)
+        #input_image = Image.open(tile_path)
         #predict and create binary mask png
-        predict(input_image, object_class)
+        predict(image_path, object_class)
 else:
     #predict single image
     predict(input_image_path) 
