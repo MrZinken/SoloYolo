@@ -37,7 +37,7 @@ def predict(image_path, object_class = 0):
     base_filename = os.path.splitext(image_path)[0]
 
     # Predict with the model
-    results = model(image, conf=0.4, classes = object_class)  # predict on an image
+    results = model(image, conf=0.1, classes = object_class)  # predict on an image
     for i, result in enumerate(results):
         #boxes = result.boxes  # Boxes object for bounding box outputs
         masks = result.masks  # Masks object for segmentation masks outputs
@@ -63,7 +63,7 @@ def predict(image_path, object_class = 0):
 """
 
 # load a custom model
-model = YOLO('/home/kai/Documents/SoloYolo/runs/segment/train/weights/best.pt')
+model = YOLO('/home/kai/Documents/SoloYolo/runs/segment/train3/weights/best.pt')
 # Input and output folders
 input_image_path = '/home/kai/Desktop/beispiel.jpg'
 input_image_folder = '/home/kai/Desktop/test/images'
