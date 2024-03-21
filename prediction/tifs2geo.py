@@ -37,9 +37,9 @@ def split_image(image):
             piece.save(piece_path)
 
 
-def predict(image, object_class):
+def predict(image, object_class, conf=0.4):
     # Predict with the model
-    results = model(image, conf=0.4, classes = object_class)  # predict on an image
+    results = model(image, conf, classes = object_class)  # predict on an image
     # Save the results with the same filename as the input
     base_filename = os.path.splitext(filename)[0]
     for i, result in enumerate(results):
@@ -157,11 +157,7 @@ def raster_to_vector(tif_file, world_file, output_gpkg, target_srs=None):
     pixel_height = world_transform[3]
     top_left_x = world_transform[4]
     top_left_y = world_transform[5]
-    width = tif_ds.RasterXSize
-    height = tif_ds.RasterYSize
-    bottom_right_x = top_left_x + width * pixel_width
-    bottom_right_y = top_left_y + height * pixel_height
-    geotransform = (top_left_x, pixel_width, 0, top_left_y, 0, pixel_height)
+
 
     # Convert binary mask to vector polygons
     src_band = tif_ds.GetRasterBand(1)
@@ -273,7 +269,7 @@ def combine_geopackages(input_folder, output_geopackage):
 
 
 # load a custom model
-#model = YOLO('/home/kai/Documents/SoloYolo/runs/segment/best/best.pt')
+model = YOLO('/home/kai/Documents/SoloYolo/runs/segment/best/best.pt')
 # Input and output folders
 input_folder = '/home/kai/Desktop/input'
 output_folder = '/home/kai/Desktop/output'
@@ -293,9 +289,12 @@ tile_size = 640
 # 2 = roof window
 object_class = 0
 
+#higher values only dectects objects with high confidence
+confidence = 0,4
+
 target_srs=25832
 #specify the georeference 
-"""
+
 # Iterate over the files in the input folder
 for filename in os.listdir(input_folder):
     # Filter by supported image formats
@@ -310,7 +309,7 @@ for filename in os.listdir(input_folder):
             tile_path = os.path.join(tile_folder, filename)
             input_image = Image.open(tile_path)
             #predict and create binary mask png
-            predict(input_image, object_class)
+            predict(input_image, object_class, confidence)
             os.remove(tile_path)
         #merge image 
         merged_mask = merge_images_resize(tile_folder)
@@ -323,5 +322,5 @@ for filename in os.listdir(input_folder):
         output_gpkg = os.path.join(output_folder, f'{base_filename}.gpkg')
         raster_to_vector(tif_path, world_file, output_gpkg, target_srs=25832)
         os.remove(tif_path)
-"""
-#combine_geopackages(output_folder, output_geopackage)
+
+combine_geopackages(output_folder, output_geopackage)
