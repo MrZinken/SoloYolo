@@ -295,10 +295,16 @@ confidence = 0,4
 target_srs=25832
 #specify the georeference 
 
+start_at_name = "63002400.tif"  # Specify the starting point
+found_start = True       # Set to True if you want to start at the beginning
+
 # Iterate over the files in the input folder
 for filename in os.listdir(input_folder):
+    if not found_start:
+        if filename.startswith(start_at_name):
+            found_start = True
+    elif filename.endswith('tif'):
     # Filter by supported image formats
-    if filename.endswith('tif'):
         #convert to jpg with a size, that is divisible by 640
         base_filename = os.path.splitext(os.path.basename(filename))[0]
         input_path = os.path.join(input_folder, filename)
