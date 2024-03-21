@@ -189,7 +189,9 @@ def raster_to_vector(tif_file, world_file, output_gpkg, target_srs=None):
 
     # Create feature for each contour
     for contour in contours:
-        ring = ogr.Geometry(ogr.wkbLinearRing)
+        if len(contour.squeeze().shape) != 2:  # Check if contour is not multidimensional
+            continue  # Skip non-iterable contours
+        ring = ogr.Geometry(ogr.wkbLinearRing)  # Create a new linear ring for each contour
         for point in contour.squeeze():
             x, y = point
             geo_x = top_left_x + x * pixel_width
@@ -271,12 +273,12 @@ def combine_geopackages(input_folder, output_geopackage):
 
 
 # load a custom model
-model = YOLO('/home/kai/Documents/SoloYolo/runs/segment/best/best.pt')
+#model = YOLO('/home/kai/Documents/SoloYolo/runs/segment/best/best.pt')
 # Input and output folders
 input_folder = '/home/kai/Desktop/input'
 output_folder = '/home/kai/Desktop/output'
 tile_folder = '/home/kai/Desktop/input/tiles'
-output_geopackage = '/home/kai/Desktop/output/solar_panel.gpkg'
+output_geopackage = '/home/kai/Desktop/solar_panel.gpkg'
 
 # Create output folder if it doesn't exist
 os.makedirs(output_folder, exist_ok=True)
@@ -293,7 +295,7 @@ object_class = 0
 
 target_srs=25832
 #specify the georeference 
-
+"""
 # Iterate over the files in the input folder
 for filename in os.listdir(input_folder):
     # Filter by supported image formats
@@ -321,5 +323,5 @@ for filename in os.listdir(input_folder):
         output_gpkg = os.path.join(output_folder, f'{base_filename}.gpkg')
         raster_to_vector(tif_path, world_file, output_gpkg, target_srs=25832)
         os.remove(tif_path)
-
-combine_geopackages(output_folder, output_geopackage)
+"""
+#combine_geopackages(output_folder, output_geopackage)
