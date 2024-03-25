@@ -330,3 +330,4 @@ for filename in os.listdir(input_folder):
         os.remove(tif_path)
 """
 combine_geopackages(output_folder, output_geopackage)
+"""
