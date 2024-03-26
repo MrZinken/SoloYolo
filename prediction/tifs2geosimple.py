@@ -108,35 +108,6 @@ def merge_images_resize(tile_folder):
     return merged_image
 
 
-def connect_close_masks(binary_mask, kernel_size):
-    #connect masks, that belong to one entity, 
-    #but are seperated because of slicing and detection errors
-    
-    # Convert Image to NumPy array
-    binary_mask_np = np.array(binary_mask) 
-    # Ensure binary mask is in uint8 format
-    binary_mask_np = binary_mask_np.astype(np.uint8)
-
-    # Convert RGB binary mask to grayscale
-    grayscale_mask = cv2.cvtColor(binary_mask_np, cv2.COLOR_BGR2GRAY)
-
-    # Apply morphological closing to fill small gaps between blocks
-    kernel = np.ones((kernel_size, kernel_size), np.uint8)
-    closed_mask = cv2.morphologyEx(grayscale_mask, cv2.MORPH_CLOSE, kernel)
-
-    # Find contours in the closed mask
-    contours, _ = cv2.findContours(
-        closed_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-    # Create a blank mask for the massive block
-    massive_block_mask = np.zeros_like(binary_mask)
-
-    # Draw contours of all connected components onto the mask
-    cv2.drawContours(massive_block_mask, contours, -1,
-                     (255, 255, 255), thickness=cv2.FILLED)
-
-    return massive_block_mask
-
 
 def convert_png_to_tif(input_array):
     # Convert the NumPy array to a PIL Image
@@ -298,6 +269,7 @@ target_srs=25832
 
 start_at_name = "63002400.tif"  # Specify the starting point
 found_start = True       # Set to True if you want to start at the beginning
+huge_geopackage = False
 
 # Iterate over the files in the input folder
 for filename in os.listdir(input_folder):
@@ -320,15 +292,12 @@ for filename in os.listdir(input_folder):
             os.remove(tile_path)
         #merge image 
         merged_mask = merge_images_resize(tile_folder)
-        #remove seperating lines between instance
-        mask_wo_gaps = connect_close_masks(merged_mask, 20)
         #convert png to tif
-        tif_path = convert_png_to_tif(mask_wo_gaps)
+        tif_path = convert_png_to_tif(merged_mask)
         #specify world file input - and geopackage output path
         world_file = os.path.join(input_folder, f'{base_filename}.tfw')
         output_gpkg = os.path.join(output_folder, f'{base_filename}.gpkg')
         raster_to_vector(tif_path, world_file, output_gpkg, target_srs=25832)
         os.remove(tif_path)
-"""
-combine_geopackages(output_folder, output_geopackage)
-"""
+if huge_geopackage:
+    combine_geopackages(output_folder, output_geopackage)

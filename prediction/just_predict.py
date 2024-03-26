@@ -2,7 +2,7 @@ import numpy as np
 from PIL import Image
 from ultralytics import YOLO
 import os
-import cv2
+
 
 def create_mask(masks):
     # Assuming `masks` is a list containing segmentation masks obtained from the YOLO model
@@ -33,40 +33,41 @@ def create_mask(masks):
 
 def predict(image_path, object_class = 0):
     image = Image.open(image_path)
-    # Save the results with the same filename as the input
-    base_filename = os.path.splitext(image_path)[0]
+    # get filename from input
+    base_filename = os.path.splitext(filename)[0]
 
     # Predict with the model
-    results = model(image, conf=0.1, classes = object_class)  # predict on an image
+    results = model(image, conf=0.4, imgsz=640, classes = object_class)  # predict on an image
     for i, result in enumerate(results):
         #boxes = result.boxes  # Boxes object for bounding box outputs
         masks = result.masks  # Masks object for segmentation masks outputs
         #keypoints = result.keypoints  # Keypoints object for pose outputs
         #probs = result.probs  # Probs object for classification outputs
         # print('Number of objects in the picture: ', len(masks))     # number of detected objects
-        output_path = os.path.join(output_folder, f'{base_filename}.png')
+        output_path = os.path.join('/home/kai/Desktop/output', f'{base_filename}.png')
         #result.save(output_path)       #save image with all results
 
         # Plot and save the segmentation mask without bounding boxes
-        segmentation_only = results[0].plot(boxes=False)
-        cv2.imwrite(output_path, segmentation_only)
+        #segmentation_only = results[0].plot(boxes=False)
+        #cv2.imwrite(output_path, segmentation_only)
 
-        """ 
+        
         if (masks is None):
             # Create a new black image
             black_image = Image.new("RGB", (640, 640), color="black")
+            print(output_path)
             black_image.save(output_path)
         else:
             mask = create_mask(masks)
             mask.save(output_path) # Save the composite mask image
             # area = functions.calculate_area(mask)
-"""
+
 
 # load a custom model
-model = YOLO('/home/kai/Documents/SoloYolo/runs/segment/train3/weights/best.pt')
+model = YOLO('/home/kai/Documents/SoloYolo/runs/segment/train4/weights/best.pt')
 # Input and output folders
 input_image_path = '/home/kai/Desktop/beispiel.jpg'
-input_image_folder = '/home/kai/Desktop/test/images'
+input_image_folder = '/home/kai/Desktop/Downloads/test/images'
 output_folder = '/home/kai/Desktop/output'
 
 predict_folder = True

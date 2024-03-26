@@ -47,8 +47,8 @@ def calculate_f1_score(precision, recall):
     return f1_score
 
 def main():
-    gt_folder = "/home/kai/Desktop/evaluate/ground_truth_images"
-    pred_folder = "/home/kai/Desktop/evaluate/predicted_images"
+    gt_folder = "/home/kai/Desktop/masks"
+    pred_folder = "/home/kai/Desktop/output"
 
     gt_files = os.listdir(gt_folder)
     pred_files = os.listdir(pred_folder)
@@ -61,8 +61,8 @@ def main():
     f1_score_values = []
 
     for gt_file, pred_file in zip(gt_files, pred_files):
-        gt_image = np.array(Image.open(os.path.join(gt_folder, gt_file)))
-        pred_image = np.array(Image.open(os.path.join(pred_folder, pred_file)))
+        gt_image = np.array(Image.open(os.path.join(gt_folder, gt_file)).convert('L'))  # Convert to grayscale
+        pred_image = np.array(Image.open(os.path.join(pred_folder, pred_file)).convert('L'))  # Convert to grayscale
 
         iou, pixel_accuracy = calculate_metrics(gt_image, pred_image)
         iou_values.append(iou)
