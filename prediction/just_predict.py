@@ -37,7 +37,7 @@ def predict(image_path, object_class = 0):
     base_filename = os.path.splitext(filename)[0]
 
     # Predict with the model
-    results = model(image, conf=0.4, imgsz=640, classes = object_class)  # predict on an image
+    results = model(image, conf=0.5, imgsz=640, classes = object_class)  # predict on an image
     for i, result in enumerate(results):
         #boxes = result.boxes  # Boxes object for bounding box outputs
         masks = result.masks  # Masks object for segmentation masks outputs

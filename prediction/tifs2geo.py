@@ -291,7 +291,7 @@ tile_size = 640
 object_class = 0
 
 #higher values only dectects objects with high confidence
-confidence = 0,4
+confidence = 0.4
 
 target_srs=25832
 #specify the georeference 
