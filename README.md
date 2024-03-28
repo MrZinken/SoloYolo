@@ -15,8 +15,23 @@ conda install -c conda-forge ultralytics
 ```
 Sollte dies nicht funktionieren ist [hier](https://docs.ultralytics.com/quickstart/) ein Guide für die Einrichtung der Umgebung.
 
-Falls die GPU Cuda-Treiber unterstützt, sollten diese noch installiert werden. Ein Tutorial dazu für Windows findet man [hier](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html) und für Linux [hier](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html)
+Falls die GPU Cuda-Treiber unterstützt, sollten diese noch installiert werden. Ein Tutorial dazu für Windows findet man [hier](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html) und für Linux [hier](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html).
 
+Außerdem wird noch ein Account bei [Roboflow](https://roboflow.com/) benötigt. Hier kann man sehr intuitiv die Daten labeln und einen passenden Datensatz generieren. Dafür reicht eine kostenlose Mitgliedschaft.
+
+Sollte die Einrichtung geklappt haben ist der schwerste Teil geschafft. Bei Problemen sind Google oder ChatGPT eine große Hilfe. 
+
+## Aufbau des Projekts
+Ein Projekt im Bereich des maschinellen Lernen teilen sich grundsätzlich auf in:
+- Erstellen des Datensatzes
+- Trainieren des Neuronalen Netzes
+- Evaluieren der Performance
+- Anwendung
+Diese Schritte werden im Folgenden erläutert.
+
+## Erstellen des Datensatzes
+Als Ausgangspunkt sind hier konkret Tiff Bilder mit einer Auflösung von 10000 x 10000 Pixeln gegeben und am Ende erhält man einen Datensatz von gelbelten/annotierten Bildern, die das zu detekierende Objekt, sowie typischen False Positives enthalten. False Positives sind Objekte die von dem Model erkannt werden, weil sie ähnliche Eigenschaften aufweisen, aber eben nicht der Klasse entsprechen. Bei der Erkennung von Solarpaneleen sind das zum Beispiel Solarthermie Anlagen, Dachfenster und Überdachungen, aber auch blaue Autos oder Schienen. 
+Welche Objekte zu False Positives führen ist nicht direkt vorherzusagen. Darauf kann bei einem iterativen Vorgehen eingegangen werden indem die False Positives in den Datensatz übernommen werden. Um eine noch stärkere Abgrenzung zu erreichen, kann man für typische False Positives eine eigene Klasse erstellen, indem man sie extra labelt. Dadurch lernt das Model diese besser zu unterscheiden. Für Solarpanele wurden die Klassen Überdachung und Solarthermie verwendet.
 
 
 
