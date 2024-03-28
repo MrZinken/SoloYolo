@@ -56,8 +56,17 @@ Hat man seinen Vorverabeitetne Datensatz nun gespeichert, ist es sinvoll einen B
 Nun wechselt man zu Roboflow und erstellt ein Projekt:
 ![projekt_erstellen](images/projekt_erstellen.png)
 Dann legt man den Namen des Projekts, die License und die Klassen fest, die man anntoieren will. Ganz wichtig an dieser Stelle ist, dass man unten die art des Projektes festlegt, in unserem Fall Instance Segmentation:
-![einrichtung_projekt](einrichtung_projekt.png)
+![einrichtung_projekt](images/einrichtung_projekt.png)
 In die nun erscheinende Seite kann man per Drag and Drop die Bilder einfügen und diese hochladen. Mit klicken auf "Save and Continue", gelangt man auf eine Seite auf der man sich rechts zwischen 3 Methoden zum laben der Daten entscheiden kann. Hier sollte man "Start Manual Labeling" auswählen, da dies kostenlos ist und man die Kontrolle über die Qualität der Annotationen hat. In einem Untermenü kann ausgewählt werden, welchem Teammitglied, die Annotation zuordnen will. Wenn man Pech hat, muss man es sich selber zuordnen, indem man unten "Assign Images" anklickt. Auf der folgenden Seite gelangt man mit einem Klick auf Start Annotating endlich zu der Umgebung wo man mit dem Markieren der Daten beginnen kann.  
+![annotieren](images/annotieren.png)
+Das Vorgehen beim Annotieren, sollte intuitiv sein und hängt von den Objekten ab, die man markieren will. Dafür stehen einem grundsätzlich zwei Tools zur verfügung. Für das Labeln von Solarpanelen hat es sich angeboten das Polygon Tool zu verwenden, das rechts in dem obersten roten Kästchen liegt. Damit kann man Punkte definieren, die das Obejkt einschließen sollen. Es ist wichtig die Objekte Konsequent bis zum Rand zu markieren und darauf zu achten, dass diese nicht abgeschnitten werden. Alle Fehler die man hier begeht, werden von dem Model übernommen. Außerdem gibt es ein Tool zur automatischen Abgrenzung, genannt "Smart Polygon, das direkt darunter liegt. Dieses ist erfahungsgemäß aber nicht präzise genug und kostet durch die Korrektur mehr Zeit als die manuelle Abgrenzung. 
+Das kann aber für Objekte die keine geraden Kanten haben und mehr Kontrast gegenüber dem Hintergrund haben anders sein. 
+Ist das Obejkt abgegrenzt wird durch drücken der Eingabetaste bestätigt und anschließend kann die gewünschte Klasse oben links gewählt werden. 
+Ist kein zu markierendes Obejkt in dem Bild vorhanden kann rechts unten das Bild als Background markiert werden(unterstes rotes Kästchen).
+Ich rate dringend zu einem spannenden Hörbuch, damit diese Tätigkeit nicht zu monoton wird.
+
+Sobald alle Bilder 
+
 
 
 
