@@ -3,7 +3,7 @@
 
 ![layer](images/mitlayer.png)
 
-Im Folgenden soll der Weg von den Ausgangsbildern, über das Annotieren, Trainieren, Evaluieren hin zu dem fertigen Geopackage möglichst kleinschrittig erläutert werden, sodass auch Beginner im Bereich ML einen guten Einstieg finden. Etwas Verständnis vom Programmieren ist wünschenswert.
+Im Folgenden soll der Weg von den Ausgangsbildern, über das Annotieren, Trainieren, Evaluieren hin zu dem fertigen Geopackage möglichst kleinschrittig erläutert werden, sodass auch Beginner im Bereich ML einen guten Einstieg finden. Etwas Verständnis vom Programmieren ist wünschenswert. Ich versuche alles so zu erklären, wie ich es mir als Einsteiger in die Welt des maschinellen Lernens gewünscht hätte. Bei Problemen, Anregungen und Ideen kann gerne ein Issue eröffnet werden. 
 
 Der Bereich des maschinellen Lernens, der hier angewendet wird, heißt Semantische Segmentattion oder Instance Segmentation. Dabei wird ein Objekt in einem Bild erkannt und auf der Fläche des Objekts eine Maske erstellt. Dadurch lassen sich anschließend Analysen auf dieser Maske ausführen.
 
@@ -50,6 +50,11 @@ output_folder = "/home/kai/Desktop/sliced"
 piece_size = 640  # Specify the size of each piece in pixels
 ```
 Außerdem kann die Bildgoeße definiert werden, wobei 640x640 eine sinvoll ist. Sollten sich die Ausgansbilder unterscheiden, muss dieses Script angepasst werden. Im folgenden müssen immer wieder Pfade zu gewümschten Ordner spezifizert werden. Da die Variablen für die Pfade (hoffentlich) selbsterklärend sind, werde ich darauf nicht mehr genauer eingehen.
+
+Lässt man das Skript laufen und hat die kleineren Bilder, muss man diese durchgehen und vor allem Bilder mit den gewünschten Klassen sammeln. Dies ist relativ aufwändig und erfordert viel Zeit und Konzentration. Es ist wichtig auch Objekte zu erkennen, die nur an den Rändern in das Bild rein reichen, damit diese auch später erkannt werden. Es ist wichtig hier auch typische False Positives mit in den Datensatz aufzunehmen und auch typische Background Bilder zu behalten. Dabei wird meistens ein Verhältnis von 10 zu 1 vorgeschlagen, von Bildern mit der Klasse zu Background Bildern. In diesem Fall wurde aber ein deutlich kleineres Verhältnis gewählt, da die False Positives ein großes Problem waren und das Model eher lernen musste, was es nicht markieren soll. 
+Hat man seinen Vorverabeitetne Datensatz nun gespeichert, ist es sinvoll einen Backup davon zu erstellen, da jetzt schon viel Arbeit darin steckt.
+Nun wechselt man zu Roboflow und erstellt ein Projekt.
+![projekt_erstellen](images/projekt_erstellen.png)
 
 
 
