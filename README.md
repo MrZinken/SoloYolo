@@ -54,11 +54,17 @@ Außerdem kann die Bildgoeße definiert werden, wobei 640x640 eine sinvoll ist. 
 Lässt man das Skript laufen und hat die kleineren Bilder, muss man diese durchgehen und vor allem Bilder mit den gewünschten Klassen sammeln. Dies ist relativ aufwändig und erfordert viel Zeit und Konzentration. Es ist wichtig auch Objekte zu erkennen, die nur an den Rändern in das Bild rein reichen, damit diese auch später erkannt werden. Es ist wichtig hier auch typische False Positives mit in den Datensatz aufzunehmen und auch typische Background Bilder zu behalten. Dabei wird meistens ein Verhältnis von 10 zu 1 vorgeschlagen, von Bildern mit der Klasse zu Background Bildern. In diesem Fall wurde aber ein deutlich kleineres Verhältnis gewählt, da die False Positives ein großes Problem waren und das Model eher lernen musste, was es nicht markieren soll. 
 Hat man seinen Vorverabeitetne Datensatz nun gespeichert, ist es sinvoll einen Backup davon zu erstellen, da jetzt schon viel Arbeit darin steckt.
 Nun wechselt man zu Roboflow und erstellt ein Projekt:
+
 ![projekt_erstellen](images/projekt_erstellen.png)
+
 Dann legt man den Namen des Projekts, die License und die Klassen fest, die man anntoieren will. Ganz wichtig an dieser Stelle ist, dass man unten die art des Projektes festlegt, in unserem Fall Instance Segmentation:
+
 ![einrichtung_projekt](images/einrichtung_projekt.png)
+
 In die nun erscheinende Seite kann man per Drag and Drop die Bilder einfügen und diese hochladen. Mit klicken auf "Save and Continue", gelangt man auf eine Seite auf der man sich rechts zwischen 3 Methoden zum laben der Daten entscheiden kann. Hier sollte man "Start Manual Labeling" auswählen, da dies kostenlos ist und man die Kontrolle über die Qualität der Annotationen hat. In einem Untermenü kann ausgewählt werden, welchem Teammitglied, die Annotation zuordnen will. Wenn man Pech hat, muss man es sich selber zuordnen, indem man unten "Assign Images" anklickt. Auf der folgenden Seite gelangt man mit einem Klick auf Start Annotating endlich zu der Umgebung wo man mit dem Markieren der Daten beginnen kann.  
+
 ![annotieren](images/annotieren.png)
+
 Das Vorgehen beim Annotieren, sollte intuitiv sein und hängt von den Objekten ab, die man markieren will. Dafür stehen einem grundsätzlich zwei Tools zur verfügung. Für das Labeln von Solarpanelen hat es sich angeboten das Polygon Tool zu verwenden, das rechts in dem obersten roten Kästchen liegt. Damit kann man Punkte definieren, die das Obejkt einschließen sollen. Es ist wichtig die Objekte Konsequent bis zum Rand zu markieren und darauf zu achten, dass diese nicht abgeschnitten werden. Alle Fehler die man hier begeht, werden von dem Model übernommen. Außerdem gibt es ein Tool zur automatischen Abgrenzung, genannt "Smart Polygon, das direkt darunter liegt. Dieses ist erfahungsgemäß aber nicht präzise genug und kostet durch die Korrektur mehr Zeit als die manuelle Abgrenzung. 
 Das kann aber für Objekte die keine geraden Kanten haben und mehr Kontrast gegenüber dem Hintergrund haben anders sein. 
 Ist das Obejkt abgegrenzt wird durch drücken der Eingabetaste bestätigt und anschließend kann die gewünschte Klasse oben links gewählt werden. 
@@ -69,12 +75,16 @@ Sobald alle Bilder gelabelt wurde, können diese in der Projecktübersicht unter
 Die annotierten Bilder könne dann unter dem Reiter "Dataset" und "Health Chek" neben anderen Informationen eingesehen werden.
 Unter "Generate" auf der linken Seite wird dann der Datensatz erstellt, der für unser Model zu verarbeiten ist. Beim "Preprocessing" sind keine Änderungen nötig, man kann direkt mit "Continue" fortfahren. 
 Unter "Augmentation" findet man eine der hilfreichsten Tools von Roboflow. Bei der Datenaugmentation werden die gelabelten Bilder auf verschiedene Weisen verändert, während die Markierungen erhalten bleiben. Dadurch erhält man "gratis" einen größeren Datensatz, während das Model zuätzlich robuster gegenüber neuen Daten wird. Mit einem Klick auf "Add Augmentation Step" werden einem folgende Schritte angeboten:
+
 ![Augmentation](images/Augmentation.png)
+
 Bedenkenlos kann hier Flip, Rotate angewendet werden. Außerdem sind leichte Veränderungen mittels Hue, Saturation, Brightness und Exposure sinnvoll. Wichtig ist, dass bei diesen Schritten nur Bilder entstehen, die auch wirklich unter normalen Bedingungen entstehen. Ansonsten wird das Model auf Bilder trainiert, die es niemals sehen wird. Die Parameter mit denen man die einzelnen Augmentation Schritte ausführt, sollten entsprechend konservativ gewählt werden. 
 Anschließend dann mittels Klick auf "Continue" und "Generate" der Datensatz erstellt. Dieser ist unter Versions zu finden.
 Um den Datensatz herunterladen zu können klickt man rechts oben auf "Export Dataset".
 In dem Fenster das erscheint wählt man unter dem Reiter Format "Yolov8" und wählt das Kästchen "download zip to computer" und klickt auf "Continoue":
+
 ![Export](images/export.png)
+
 Dann beginnt der Download des Datensatzes in dem benötigten Format.
 
 
