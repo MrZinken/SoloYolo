@@ -57,7 +57,7 @@ Nun wechselt man zu Roboflow und erstellt ein Projekt:
 ![projekt_erstellen](images/projekt_erstellen.png)
 Dann legt man den Namen des Projekts, die License und die Klassen fest, die man anntoieren will. Ganz wichtig an dieser Stelle ist, dass man unten die art des Projektes festlegt, in unserem Fall Instance Segmentation:
 ![einrichtung_projekt](einrichtung_projekt.png)
-In die nun erscheinende Seite kann man per Drag and Drop die Bilder einfügen und diese hochladen.
+In die nun erscheinende Seite kann man per Drag and Drop die Bilder einfügen und diese hochladen. Mit klicken auf "Save and Continue", gelangt man auf eine Seite auf der man sich rechts zwischen 3 Methoden zum laben der Daten entscheiden kann. Hier sollte man "Start Manual Labeling" auswählen, da dies kostenlos ist und man die Kontrolle über die Qualität der Annotationen hat. In einem Untermenü kann ausgewählt werden, welchem Teammitglied, die Annotation zuordnen will. Wenn man Pech hat, muss man es sich selber zuordnen, indem man unten "Assign Images" anklickt. Auf der folgenden Seite gelangt man mit einem Klick auf Start Annotating endlich zu der Umgebung wo man mit dem Markieren der Daten beginnen kann.  
 
 
 
