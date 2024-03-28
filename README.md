@@ -13,6 +13,9 @@ Als IDE wurde VSCode unter Linux benutzt. Es wird empfohlen Anaconda3 als Virtue
 # Install the ultralytics package using conda
 conda install -c conda-forge ultralytics
 ```
+Sollte dies nicht funktionieren ist [hier](https://docs.ultralytics.com/quickstart/) ein Guide für die Einrichtung der Umgebung.
+
+Falls die GPU Cuda-Treiber unterstützt, sollten diese noch installiert werden. Ein Tutorial dazu für Windows findet man [hier](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html) und für Linux [hier](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html)
 
 
 
