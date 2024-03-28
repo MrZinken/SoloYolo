@@ -3,7 +3,9 @@
 
 ![layer](images/mitlayer.png)
 
-Im Folgenden soll der Weg von den Ausgangsbildern, über das Annotieren, Trainieren, Evaluieren hin zu dem fertigen Geopackage möglichst kleinschrittig erklärt werden, sodass auch Beginner im Bereich ML einen guten Einstieg finden. Etwas Verständnis vom Programmieren wird vorausgesetzt.
+Im Folgenden soll der Weg von den Ausgangsbildern, über das Annotieren, Trainieren, Evaluieren hin zu dem fertigen Geopackage möglichst kleinschrittig erläutert werden, sodass auch Beginner im Bereich ML einen guten Einstieg finden. Etwas Verständnis vom Programmieren ist wünschenswert.
+
+Der Bereich des maschinellen Lernens, der hier angewendet wird, heißt Semantische Segmentattion oder Instance Segmentation. Dabei wird ein Objekt in einem Bild erkannt und auf der Fläche des Objekts eine Maske erstellt. Dadurch lassen sich anschließend Analysen auf dieser Maske ausführen.
 
 
 ## Vorassetzung
@@ -32,8 +34,23 @@ Ein Projekt im Bereich des maschinellen Lernen teilen sich grundsätzlich auf in
 Diese Schritte werden im Folgenden erläutert.
 
 ## Erstellen des Datensatzes
-Als Ausgangspunkt sind hier konkret Tiff Bilder mit einer Auflösung von 10000 x 10000 Pixeln gegeben und am Ende erhält man einen Datensatz von gelbelten/annotierten Bildern, die das zu detekierende Objekt, sowie typischen False Positives enthalten. False Positives sind Objekte die von dem Model erkannt werden, weil sie ähnliche Eigenschaften aufweisen, aber eben nicht der Klasse entsprechen. Bei der Erkennung von Solarpaneleen sind das zum Beispiel Solarthermie Anlagen, Dachfenster und Überdachungen, aber auch blaue Autos oder Schienen. 
-Welche Objekte zu False Positives führen ist nicht direkt vorherzusagen. Darauf kann bei einem iterativen Vorgehen eingegangen werden indem die False Positives in den Datensatz übernommen werden. Um eine noch stärkere Abgrenzung zu erreichen, kann man für typische False Positives eine eigene Klasse erstellen, indem man sie extra labelt. Dadurch lernt das Model diese besser zu unterscheiden. Für Solarpanele wurden die Klassen Überdachung und Solarthermie verwendet.
+Die Qualität des Datensatzes ist absolut entscheidend für die Performance des Models. Aus minderwertigen Daten wird nie ein gut funktionierndes Model werden. Je größer und diversers der Datensatz ist umso besser kann das Model trainieren. Hier muss eine Abwägung zwischen Zeitaufwand, vorhanden Daten und Anforderungen getroffen werden. Dafür kann keine generelle Angabe getroffen werden, da dies auch von "Schwierigkeit" abhängt, die das Model bei der Bearbeitung der Daten hat. Außerdem besteht kein linearer Zusammenhang zwischen Größe des Datensatzes und der anschließenden Perfomrance. Dieser Zusammenhang wird eher durch beschränktes Wachstum definiert. In diesem Fall haben rund 1000 annotierte Bilder mit etwa 2200 Instanzen von Solarpanelen zu einer befriedigenden Performance geführt. Wenn die Ressourcen vorhandne sind führt ein Datensatz von 10000 Bilder aber zu einer höheren Perfomance und Robustheit.
+
+### Ausgangspunkt und Ziel
+Als Ausgangspunkt sind hier konkret Tiff Bilder mit einer Auflösung von 10000 x 10000 Pixeln gegeben und am Ende erhält man einen Datensatz von gelbelten/annotierten Bildern, die das zu detekierende Objekt, sowie typischen False Positives enthalten. False Positives sind Objekte die von dem Model erkannt werden, weil sie ähnliche Eigenschaften aufweisen, aber eben nicht der Klasse entsprechen, die man segmentieren möchte. Bei der Erkennung von Solarpaneleen sind das zum Beispiel Solarthermie Anlagen, Dachfenster und Überdachungen, aber auch blaue Autos oder Bahnschienen typische False Positives. 
+Welche Objekte zu False Positives führen ist nicht direkt vorherzusagen. Darauf kann bei einem iterativen Vorgehen eingegangen werden indem die False Positives in den Datensatz aufgenommen werden. Um eine noch stärkere Abgrenzung zu erreichen, kann man für "starke" False Positives eine eigene Klasse erstellen, indem man sie extra labelt. Dadurch lernt das Model diese besser zu unterscheiden. Für Solarpanele wurden die Klassen Überdachung und Solarthermie verwendet. Das folgende Bild enthält kein Solarpanel und hilft dabei zu verstehen, vor welcher Herausforderung man steht, wenn man im urbanen Umfeld selektiv Solarpanele detektieren will.
+![false positives](images/false_positives.jpg)
+
+### Konkretes Vorgehen
+Zunächst sollte man sich einen Querschnitt der verfügaberen Daten ansehen und ein Verständnis davon Etnwickeln wie Objekte, die man detektieren will aussehen. Die Varianz von simplen Objekten kann schon erstaunlich hoch sein und von Dingen abhängen, die man nicht antizipiert. Hat man eine Idee von den verfügbaren Daten und der Klasse von Objekten die man Segmentieren möchte, sollte man eine möglichst diverse Auswahl von Bildern zusammenstellen. Dabei ist eine hohe Varianz der Bilder entscheidend. Hat man diese Bilder gesammelt müssen diese zerschintten werden, damit sie dem Format entsprechen, das das Neuronale Netz verarbeiten kann. Die Funktion [slize.py](https://github.com/MrZinken/SoloYolo/tree/main/dataset) übernimmt dies. Hier müssen lediglich die Ordner spzifizert werden, indem man die zu zerschneidenden Bilder abgelegt hat und die "Schnipsel" abgelegt werden sollen. 
+```
+# Specify input and output folders
+input_folder = "/home/kai/Desktop/2slice"
+output_folder = "/home/kai/Desktop/sliced"
+piece_size = 640  # Specify the size of each piece in pixels
+```
+Außerdem kann die Bildgoeße definiert werden, wobei 640x640 eine sinvoll ist. Sollten sich die Ausgansbilder unterscheiden, muss dieses Script angepasst werden. Im folgenden müssen immer wieder Pfade zu gewümschten Ordner spezifizert werden. Da die Variablen für die Pfade (hoffentlich) selbsterklärend sind, werde ich darauf nicht mehr genauer eingehen.
+
 
 
 
