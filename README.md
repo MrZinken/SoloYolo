@@ -53,8 +53,11 @@ Außerdem kann die Bildgoeße definiert werden, wobei 640x640 eine sinvoll ist. 
 
 Lässt man das Skript laufen und hat die kleineren Bilder, muss man diese durchgehen und vor allem Bilder mit den gewünschten Klassen sammeln. Dies ist relativ aufwändig und erfordert viel Zeit und Konzentration. Es ist wichtig auch Objekte zu erkennen, die nur an den Rändern in das Bild rein reichen, damit diese auch später erkannt werden. Es ist wichtig hier auch typische False Positives mit in den Datensatz aufzunehmen und auch typische Background Bilder zu behalten. Dabei wird meistens ein Verhältnis von 10 zu 1 vorgeschlagen, von Bildern mit der Klasse zu Background Bildern. In diesem Fall wurde aber ein deutlich kleineres Verhältnis gewählt, da die False Positives ein großes Problem waren und das Model eher lernen musste, was es nicht markieren soll. 
 Hat man seinen Vorverabeitetne Datensatz nun gespeichert, ist es sinvoll einen Backup davon zu erstellen, da jetzt schon viel Arbeit darin steckt.
-Nun wechselt man zu Roboflow und erstellt ein Projekt.
+Nun wechselt man zu Roboflow und erstellt ein Projekt:
 ![projekt_erstellen](images/projekt_erstellen.png)
+Dann legt man den Namen des Projekts, die License und die Klassen fest, die man anntoieren will. Ganz wichtig an dieser Stelle ist, dass man unten die art des Projektes festlegt, in unserem Fall Instance Segmentation:
+![einrichtung_projekt](einrichtung_projekt.png)
+In die nun erscheinende Seite kann man per Drag and Drop die Bilder einfügen und diese hochladen.
 
 
 
