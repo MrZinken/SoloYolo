@@ -37,7 +37,7 @@ def split_image(image):
             piece.save(piece_path)
 
 
-def predict(image, object_class, conf=0.4):
+def predict(image, object_class, conf=0.5):
     # Predict with the model
     results = model(image, conf, classes = object_class)  # predict on an image
     # Save the results with the same filename as the input
@@ -64,13 +64,12 @@ def predict(image, object_class, conf=0.4):
 def create_mask(masks):
     # Assuming `masks` is a list containing segmentation masks obtained from the YOLO model
     # Create an empty composite mask array
-    composite_mask = np.zeros_like(masks[0].data[0].numpy(), dtype=np.uint8)
+    composite_mask = np.zeros_like(masks[0].data[0].cpu().numpy(), dtype=np.uint8)
 
     # Assign different intensity values to each mask and overlay them onto the composite mask
     for i, mask in enumerate(masks, start=1):
         # Assign a unique intensity value (255/i) to each mask
-        mask_data = (mask.data[0].numpy() *
-                     (255 // i)).astype(np.uint8)
+        mask_data = (mask.data[0].cpu().numpy() * (255 // i)).astype(np.uint8)
         # Add the mask to the composite mask
         composite_mask += mask_data
 
@@ -270,11 +269,11 @@ def combine_geopackages(input_folder, output_geopackage):
 
 
 # load a custom model
-model = YOLO('/home/kai/Documents/SoloYolo/runs/segment/best/best.pt')
+model = YOLO('/home/kai/Documents/SoloYolo/runs/segment/train2/weights/best.pt')
 # Input and output folders
-input_folder = '/home/kai/Desktop/input'
-output_folder = '/home/kai/Desktop/output'
-tile_folder = '/home/kai/Desktop/input/tiles'
+input_folder = '/media/kai/Bonn/DOP_2022_2_5_cm_rgb'
+output_folder = '/home/kai/Documents/bonn/output'
+tile_folder = '/home/kai/Documents/bonn/tiles'
 output_geopackage = '/home/kai/Desktop/solar_panel_new.gpkg'
 
 # Create output folder if it doesn't exist
@@ -291,7 +290,7 @@ tile_size = 640
 object_class = 0
 
 #higher values only dectects objects with high confidence
-confidence = 0.4
+confidence = 0.5
 
 target_srs=25832
 #specify the georeference 
