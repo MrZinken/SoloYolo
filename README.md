@@ -107,3 +107,19 @@ Mit "data" wird der Pfad zur "data.yaml" angegeben. Diese Datei liegt im Datensa
 "epochs" gibt die Anzahl an Trainingsläufen an. Multipliziert man diese Zahl mit "batch", erhält man die Anzahl an Bildern die das Neuronale Netz sehen wird. Diese sollte nie unter der Anzahl an Bildern liegen, die im Datensatz liegen. Hier sollte ein möglichst hoher Wert gewählt werden. Sollte kein Performancegewinn mehr auftreten bricht das Training frühzeitig ab.
 
 Schließlich gibt "imgsz" die Größe der Bilder an. Hier ist 640 der default Wert.
+
+Führt man dieses Script aus, läuft das Training. Sollte ein Fehler geworfen werden, ist wahrscheinlich die Batch Size zu groß, oder ein Pfad ist falsch angelegt. Im ersten Fall, sollte die Batch Size sukkzesive verringert werden und im zweiten die Pfade zur data.yaml und die Pfade in der data.yaml geprüft werden.
+
+Ist das Training abgeschlossen werden die Gewichte und einige Metriken unter "runs/segment" gespeichert. Nun sollte man sich die Ergebnisse anschauen und bestenfalls eigene Metriken erstellt werden, sollte der Testdatensatz groß genug sein.
+
+## Performance
+
+Im Ordner runs/segment/trainx findet man automatisch erstellte Metriken. Die normalisierte Konfusion Matrix ist ein geeigneter Einstieg um die Performance des Models zu evaluieren. Dabei sollte der Schwerpunkt auf der Diagonalen liegen. Hier ziegt sich, dass das Model in dieser Anwendung häufig Probleme mit False Positives hat. 
+Die Mean Average Precision (mAP) gibt eine Idee von der Präzision der Zurordung über alle Klassen an.
+Intersection over Union (IoU) ist eine Metrik um zu zeigen, wie gut die erstellte Maske über dem Ground Truth liegt. 
+Der F1 Score Ergibt sich aus der dem Recall und der Precision und ist gibt somit einen ersten Eindruck über die Perfomrance für False Positives und False Negatives.
+
+Um eigene Metriken zu erstellen muss zunächst unter mit der "just_predict.py" Prediciton Masks erstellt werden. Dafür wählt man die gewünschten Gewichte aus und den legt den Pfad zu den Testbilder fest. Dabei wird immer nur eine Klasse getestet, die in der Variable "object_class" festgelegt wird. In diesem Fall ist das solar_panel.  Außerdem führt man unter "performance" "labels2masks" aus. Hier muss der Pfad zu dem Ordner mit den Labeln im Testdatensatz festgelet werden. Danach sollten die Masken mit der Vorhersage des Models im Ordner "output" und die Ground Truth Masken im Ordner "masks" gespeichert sein. Diese können visuell inspiziert werden, um einen ersten Eindruck zu bekommen. Die Masken sollten sich ähneln und müssen die selben Namen haben. 
+Unter "perfomrance/average_metrics"  werden dann jeweils die Pfade zu den beiden Ordnern angegeben und dieses Script ausgeführt. Dabei werden die Metriken im Terminal ausgegeben:
+
+![Metriken](images/metriken.png)
