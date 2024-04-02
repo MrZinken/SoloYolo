@@ -128,4 +128,13 @@ Ist die Performance zufriedenstellend kann man mit der Anwenung des Models fortf
 
 ## Anwendung
 
+Die Voraussetzung um das Model anzuwenden sind neben einem Trainierten Model noch die Bilddaten im richtigen Format mit dazugehöriger Georeferenzen. Die Georeferenz dient dazu, dass die Vorhergesagten Masken von Anwendungen wie QGis an den korrekten Positionen geladen werden können. Dazu muss die Georefenz als Worldfile mit dem selben Namen wie das Tiff vorliegen. Die Endung von Worldfiles für Tiffs ist ".tfw". 
+
+Sind diese Voraussetzungen erfüllt müssen lediglich einige Variablen spezifiziert werden
+
+![anwendung](images/anwenung.png)
+
+"model" gibt den Pfad zu den gewünschten Gewichten an. 
+Im "input_folder" werden sind die zu verabeitenden Tiff Bilder und Georeferenzen hinterlegt. Der "tile_folder" dient lediglich zur als zwischen Speicher und im "outputfolder" werden die jeweiligen GeoPackages der einzelnen Bilder gespeichert.
+
 
