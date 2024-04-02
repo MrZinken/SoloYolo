@@ -84,7 +84,7 @@ In dem Fenster das erscheint, wählt man unter dem Reiter Format "Yolov8" und w�
 
 ![Export](images/export.png)
 
-Dann beginnt der Download des Datensatzes in dem benötigten Format. Dieser sollte entpackt an einem sinnvollen Ort gespeichert werden. Den Pfad dorthin benötigen wir im nächsten Schritt. Auch hier kann ein Backup nicht schaden.
+Dann beginnt der Download des Datensatzes in dem benötigten Format. Dieser sollte entpackt an einem sinnvollen Ort gespeichert werden. Von dem Trainingsdatensatz sollte ein Backup erstellt werden. Den Pfad zu "data.yaml" wird im folgenden Schritt benötigt.
 
 Jetzt ist ein Großteil der Arbeit für uns Menschen erledigt und das Training kann beginnen.
 
@@ -96,5 +96,14 @@ Die Funktion für das Training ist denkbar einfach:
 
 In der Variablen "model" legt man fest, welches Model von Ultralytics genutzt werden soll. Dabei gibt "yolov8" die Version an. Es wird bereits an yolov9 gearbeitet, aber dieses Model steht Anfang 2024 noch nicht für die Segementation zur Verfügung. Das "l" steht für die Größe, in diesem Fall large. Außerdem gibt es noch "n" für nano, "s" für small, "m" für medium und "xl" für extra large. Die Endung "-seg" gibt die Funktion des Models an und steht für Segmentation. Und schließlich ist ".pt" die Dateiendung und steht für Checkpointing Model im Pickle Format.
 
-Welche Größe man nutzt hängt von der zur Verfügung stehenden Rechenleistung/Bearbeitungszeit ab, aber auch der Größe des Datensatzes, der Anzahl an Klassen und der Komplexität der Aufgabe ab. Als Startpunkt ist das Medium Model zu wählen.
+Welche Größe man nutzt hängt von der zur Verfügung stehenden Rechenleistung/Bearbeitungszeit ab, aber auch der Größe des Datensatzes, der Anzahl an Klassen und der Komplexität der Aufgabe ab. Als Startpunkt ist das Medium Model geeignet. 
 
+Die Variable "batch" nimmt Integer Werte an und sagt aus, wie viele Bilder pro Traingslauf(epochs) geladen werden sollen. Diese sollten unter gegebener Hardware möglichst hoch gewählt werden, da dadurch eine weniger spezifisches Lernverhalten gewärhleistet wird. Dafür ist der Grafikspeicher der limitierende Faktor. Je Größer das Model ist, desto weniger Speicher bleibt für die Bilder übrig.
+
+Mit "device" kann man festlegen, ob mit der GPU trainiert werden soll. Unterstützt der Computer Cuda Treiber sollten diese dringend installiert werden und "cuda" gewählt werden. Dadurch wird die Performance deutlich gesteigert. Ist es nicht möglich Cuda Treiber zu installieren, muss hier "cpu" gewählt werden. 
+
+Mit "data" wird der Pfad zur "data.yaml" angegeben. Diese Datei liegt im Datensatz Ordner.
+
+"epochs" gibt die Anzahl an Trainingsläufen an. Multipliziert man diese Zahl mit "batch", erhält man die Anzahl an Bildern die das Neuronale Netz sehen wird. Diese sollte nie unter der Anzahl an Bildern liegen, die im Datensatz liegen. Hier sollte ein möglichst hoher Wert gewählt werden. Sollte kein Performancegewinn mehr auftreten bricht das Training frühzeitig ab.
+
+Schließlich gibt "imgsz" die Größe der Bilder an. Hier ist 640 der default Wert.
