@@ -132,7 +132,7 @@ Die Voraussetzung um das Model anzuwenden sind neben einem Trainierten Model noc
 
 Sind diese Voraussetzungen erfüllt müssen lediglich einige Variablen spezifiziert werden
 
-![anwendung](images/anwenung.png)
+![anwendung](images/anwendung.png)
 
 "model" gibt den Pfad zu den gewünschten Gewichten an. 
 Im "input_folder" werden sind die zu verabeitenden Tiff Bilder und Georeferenzen hinterlegt. Der "tile_folder" dient lediglich zur als zwischen Speicher und im "outputfolder" werden die jeweiligen GeoPackages der einzelnen Bilder gespeichert.
