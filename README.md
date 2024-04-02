@@ -84,9 +84,57 @@ In dem Fenster das erscheint, wählt man unter dem Reiter Format "Yolov8" und w�
 
 ![Export](images/export.png)
 
-Dann beginnt der Download des Datensatzes in dem benötigten Format. Dieser sollte entpackt an einem sinnvollen Ort gespeichert werden. Den Pfad dorthin benötigen wir im nächsten Schritt. Auch hier kann ein Backup nicht schaden.
+Dann beginnt der Download des Datensatzes in dem benötigten Format. Dieser sollte entpackt an einem sinnvollen Ort gespeichert werden. Von dem Trainingsdatensatz sollte ein Backup erstellt werden. Den Pfad zu "data.yaml" wird im folgenden Schritt benötigt.
 
-Jetzt ist ein Großteil der Arbeit erledigt und das Training kann beginnen.
+Jetzt ist ein Großteil der Arbeit für uns Menschen erledigt und das Training kann beginnen.
 
+## Training
+
+Die Funktion für das Training ist denkbar einfach:
+
+![Training](images/training.png)
+
+In der Variablen "model" legt man fest, welches Model von Ultralytics genutzt werden soll. Dabei gibt "yolov8" die Version an. Es wird bereits an yolov9 gearbeitet, aber dieses Model steht Anfang 2024 noch nicht für die Segementation zur Verfügung. Das "l" steht für die Größe, in diesem Fall large. Außerdem gibt es noch "n" für nano, "s" für small, "m" für medium und "xl" für extra large. Die Endung "-seg" gibt die Funktion des Models an und steht für Segmentation. Und schließlich ist ".pt" die Dateiendung und steht für Checkpointing Model im Pickle Format.
+
+Welche Größe man nutzt hängt von der zur Verfügung stehenden Rechenleistung/Bearbeitungszeit ab, aber auch der Größe des Datensatzes, der Anzahl an Klassen und der Komplexität der Aufgabe ab. Als Startpunkt ist das Medium Model geeignet. 
+
+Die Variable "batch" nimmt Integer Werte an und sagt aus, wie viele Bilder pro Traingslauf(epochs) geladen werden sollen. Diese sollten unter gegebener Hardware möglichst hoch gewählt werden, da dadurch eine weniger spezifisches Lernverhalten gewärhleistet wird. Dafür ist der Grafikspeicher der limitierende Faktor. Je Größer das Model ist, desto weniger Speicher bleibt für die Bilder übrig.
+
+Mit "device" kann man festlegen, ob mit der GPU trainiert werden soll. Unterstützt der Computer Cuda Treiber sollten diese dringend installiert werden und "cuda" gewählt werden. Dadurch wird die Performance deutlich gesteigert. Ist es nicht möglich Cuda Treiber zu installieren, muss hier "cpu" gewählt werden. 
+
+Mit "data" wird der Pfad zur "data.yaml" angegeben. Diese Datei liegt im Datensatz Ordner.
+
+"epochs" gibt die Anzahl an Trainingsläufen an. Multipliziert man diese Zahl mit "batch", erhält man die Anzahl an Bildern die das Neuronale Netz sehen wird. Diese sollte nie unter der Anzahl an Bildern liegen, die im Datensatz liegen. Hier sollte ein möglichst hoher Wert gewählt werden. Sollte kein Performancegewinn mehr auftreten bricht das Training frühzeitig ab.
+
+Schließlich gibt "imgsz" die Größe der Bilder an. Hier ist 640 der default Wert.
+
+Führt man dieses Script aus, läuft das Training. Sollte ein Fehler geworfen werden, ist wahrscheinlich die Batch Size zu groß, oder ein Pfad ist falsch angelegt. Im ersten Fall, sollte die Batch Size sukkzesive verringert werden und im zweiten die Pfade zur data.yaml und die Pfade in der data.yaml geprüft werden.
+
+Ist das Training abgeschlossen werden die Gewichte und einige Metriken unter "runs/segment" gespeichert. Nun sollte man sich die Ergebnisse anschauen und bestenfalls eigene Metriken erstellt werden, sollte der Testdatensatz groß genug sein.
+
+## Performance
+
+Im Ordner runs/segment/trainx findet man automatisch erstellte Metriken. Die normalisierte Konfusion Matrix ist ein geeigneter Einstieg um die Performance des Models zu evaluieren. Dabei sollte der Schwerpunkt auf der Diagonalen liegen. Hier ziegt sich, dass das Model in dieser Anwendung häufig Probleme mit False Positives hat. 
+Die Mean Average Precision (mAP) gibt eine Idee von der Präzision der Zurordung über alle Klassen an.
+Intersection over Union (IoU) ist eine Metrik um zu zeigen, wie gut die erstellte Maske über dem Ground Truth liegt. 
+Der F1 Score Ergibt sich aus der dem Recall und der Precision und ist gibt somit einen ersten Eindruck über die Perfomrance für False Positives und False Negatives.
+
+Um eigene Metriken zu erstellen muss zunächst unter mit der "just_predict.py" Prediciton Masks erstellt werden. Dafür wählt man die gewünschten Gewichte aus und den legt den Pfad zu den Testbilder fest. Dabei wird immer nur eine Klasse getestet, die in der Variable "object_class" festgelegt wird. In diesem Fall ist das solar_panel.  Außerdem führt man unter "performance" "labels2masks" aus. Hier muss der Pfad zu dem Ordner mit den Labeln im Testdatensatz festgelet werden. Danach sollten die Masken mit der Vorhersage des Models im Ordner "output" und die Ground Truth Masken im Ordner "masks" gespeichert sein. Diese können visuell inspiziert werden, um einen ersten Eindruck zu bekommen. Die Masken sollten sich ähneln und müssen die selben Namen haben. 
+Unter "perfomrance/average_metrics"  werden dann jeweils die Pfade zu den beiden Ordnern angegeben und dieses Script ausgeführt. Dabei werden die Metriken im Terminal ausgegeben:
+
+![Metriken](images/metriken.png)
+
+Ist die Performance zufriedenstellend kann man mit der Anwenung des Models fortfahren um ein Geolayer aus den Daten zu erstellen. 
+
+## Anwendung
+
+Die Voraussetzung um das Model anzuwenden sind neben einem Trainierten Model noch die Bilddaten im richtigen Format mit dazugehöriger Georeferenzen. Die Georeferenz dient dazu, dass die Vorhergesagten Masken von Anwendungen wie QGis an den korrekten Positionen geladen werden können. Dazu muss die Georefenz als Worldfile mit dem selben Namen wie das Tiff vorliegen. Die Endung von Worldfiles für Tiffs ist ".tfw". 
+
+Sind diese Voraussetzungen erfüllt müssen lediglich einige Variablen spezifiziert werden
+
+![anwendung](images/anwenung.png)
+
+"model" gibt den Pfad zu den gewünschten Gewichten an. 
+Im "input_folder" werden sind die zu verabeitenden Tiff Bilder und Georeferenzen hinterlegt. Der "tile_folder" dient lediglich zur als zwischen Speicher und im "outputfolder" werden die jeweiligen GeoPackages der einzelnen Bilder gespeichert.
 
 
