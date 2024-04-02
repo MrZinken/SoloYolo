@@ -1,46 +1,147 @@
-# SoloYolo: Solar Panel Detection from Aerial Images
+# SoloYolo
+## Framweork, das aus Überflug-Bildern der Stadt Bonn Objekte identifiziert und diese zu einem GeoPackage zusammensetzt. In diesem Fall wurde das Netz auf Solarpaneele trainiert.
 
-## Goal
+![layer](images/mitlayer.png)
 
-Create a userfriendly workflow to detect, visualize and calculate solar panels on aerial images with the help of machine learinng/sematic segmentation. This task is done for the city of Bonn while doing my Praxisprojekt.
+Im Folgenden soll der Weg von den Ausgangsbildern, über das Annotieren, Trainieren, Evaluieren hin zu dem fertigen Geopackage möglichst kleinschrittig erläutert werden, sodass auch Einsteiger im Bereich ML einen guten Einstieg finden. Etwas Verständnis vom Programmieren ist wünschenswert. Ich versuche alles so zu erklären, wie ich es mir als Einsteiger in die Welt des maschinellen Lernens gewünscht hätte. Bei Problemen, Anregungen und Ideen kann gerne ein Issue eröffnet werden.
 
-## Side Goals
+Der Bereich des maschinellen Lernens, der hier angewendet wird, heißt Semantische Segmentation oder Instance Segmentation. Dabei wird ein Objekt in einem Bild erkannt und auf der Fläche des Objekts eine Maske erstellt. Dadurch lassen sich anschließend Analysen auf dieser Maske ausführen.
 
-learn a lot
+## Voraussetzung
+Das Projekt wurde auf einem stärkeren Laptop entwickelt. Es wird jedoch empfohlen das Training und die Vorhersage von vielen Bildern auf einem Rechner mit dedizierter GPU laufen zu lassen, die CUDA unterstützt.
+Die Überflugbilder der Stadt Bonn sind im TIF Format und haben eine Auflösung von 10000 x 10000 Pixel, während ein Pixel 2,5 x 2,5 cm Bodenfläche abdeckt. Da das neuronale Netz 640 x 640 Pixel große JPG-Bilder bevorzugt, muss bei der Vorverarbeitung darauf geachtet werden, ob das Zerschneiden zu einem Bild mit den entsprechenden Maßen führt. Sonst muss der Code für die Vorverarbeitung und das spätere Zusammensetzen der Bilder angepasst werden. Strikte Voraussetzung für das neuronale Netz sind quadratische Bilder mit einem Vielfachen von 32 Pixeln.
 
-## General Proceedure
+Als IDE wurde VSCode unter Linux benutzt. Es wird empfohlen Anaconda3 als Virtuelles Environmet in Version 3.11.8 einzurichten. Eine Anleitung dazu findet man [hier](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html). In diesem Environment muss dann noch die Bibliothek von Ultralytics installiert werden, die das Netz zur Segmentation, sowie erstaunlich simple Funktionen zum Training und Anwendung des Netzes bereitstellen. Dies erfolgt mit folgendem Befehl im Terminal:
+```
+# Install the ultralytics package using conda
+conda install -c conda-forge ultralytics
+```
+Sollte dies nicht funktionieren ist [hier](https://docs.ultralytics.com/quickstart/) ein Guide für die Einrichtung der Umgebung.
 
-After evaluating two projects, that have the same goal, I decided, that I train my own model with the data that has the same resolution of the data that should be analyzed. 
+Falls die GPU Cuda-Treiber unterstützt, sollten diese noch installiert werden. Ein Tutorial dazu für Windows findet man [hier](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html) und für Linux [hier](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html).
 
-https://github.com/Kleebaue/multi-resolution-pv-system-segmentation
+Außerdem wird noch ein Account bei [Roboflow](https://roboflow.com/) benötigt. Hier kann man sehr intuitiv die Daten labeln und einen passenden Datensatz generieren. Dafür reicht eine kostenlose Mitgliedschaft.
 
-https://github.com/fvergaracontesse/hyperion_solar_net/blob/main/models/README.md
+Sollte die Einrichtung geklappt haben, ist der schwerste Teil geschafft. Bei Problemen sind Google oder ChatGPT eine große Hilfe.
 
-The tiff files provided have a size of 10.000x10.000 pixels and provide four channels(cir = rgb + near infrared). Each pixel covers an area of 2.5cm square. These images needs to be converted to jpg and split into tiles with the size of 640x640. 
-These images are annotated in Roboflow with two classes: solar panels that generate electric energy and solarthermal system that heat up water. 
-As they look similar and often appear in the same context I diceded to add them as a second class to avoid false positives. The city of Bonn is espacially intersted in pv systems that generate electric energy.
+## Aufbau des Projekts
+Projekte im Bereich des maschinellen Lernens teilen sich grundsätzlich auf in:
+- Erstellen des Datensatzes
+- Trainieren des neuronalen Netzes
+- Evaluieren der Performance
+- Anwendung
+Diese Schritte werden im Folgenden erläutert.
 
-The predicted segmentation mask is resized to the original size of the original image. A vector image is generated and the area and number of the found instances will be calculated.
+## Erstellen des Datensatzes
+Die Qualität des Datensatzes ist absolut entscheidend für die Performance des Models. Aus minderwertigen Daten wird nie ein gut funktionierendes Model werden. Je größer und diverser der Datensatz ist, umso besser kann das Model trainieren. Hier muss eine Abwägung zwischen Zeitaufwand, vorhanden Daten und Anforderungen getroffen werden. Dafür kann keine generelle Angabe getroffen werden, da dies auch von "Schwierigkeit" abhängt, die das Model bei der Bearbeitung der Daten hat. Zudem besteht kein linearer Zusammenhang zwischen Größe des Datensatzes und der anschließenden Performance. Dieser Zusammenhang wird eher durch beschränktes Wachstum definiert. In diesem Fall haben rund 1000 annotierte Bilder mit etwa 2200 Instanzen von Solarpaneelen zu einer befriedigenden Performance geführt. Wenn die Ressourcen vorhanden sind, führt ein Datensatz von 10000 Bilder aber zu einer höheren Performance und Robustheit.
 
-The results can then be used to apply geonalytical methods. 
+### Ausgangspunkt und Ziel
+Als Ausgangspunkt sind hier konkret Tiff Bilder mit einer Auflösung von 10000 x 10000 Pixeln gegeben und am Ende erhält man einen Datensatz von gelabelten/annotierten Bildern, die das zu detektierende Objekt, sowie typischen False Positives enthalten. False Positives sind Objekte die von dem Model erkannt werden, weil sie ähnliche Eigenschaften aufweisen, aber eben nicht der Klasse entsprechen, die man segmentieren möchte. Bei der Erkennung von Solarpaneelen sind das zum Beispiel Solarthermie Anlagen, Dachfenster und Überdachungen, aber auch blaue Autos oder Bahnschienen typische False Positives.
+Welche Objekte zu False Positives führen ist nicht direkt vorherzusagen. Darauf kann bei einem iterativen Vorgehen eingegangen werden, indem die False Positives in den Datensatz aufgenommen werden. Um eine noch stärkere Abgrenzung zu erreichen, kann man für "starke" False Positives eine eigene Klasse erstellen, indem man sie extra labelt. Dadurch lernt das Model diese besser zu unterscheiden. Für Solarpaneele wurden die Klassen Überdachung und Solarthermie verwendet. Das folgende Bild enthält kein Solarpanel und hilft dabei zu verstehen, vor welcher Herausforderung man steht, wenn man im urbanen Umfeld selektiv Solarpaneele detektieren will.
+![false positives](images/false_positives.jpg)
 
-## Model
+### Konkretes Vorgehen
+Zunächst sollte man sich einen Querschnitt der verfügbaren Daten ansehen und ein Verständnis davon entwickeln wie Objekte, die man detektieren will aussehen. Die Varianz von simplen Objekten kann schon erstaunlich hoch sein und von Dingen abhängen, die man nicht antizipiert. Hat man eine Idee von den verfügbaren Daten und der Klasse von Objekten, die man Segmentieren möchte, sollte man eine möglichst diverse Auswahl von Bildern zusammenstellen. Dabei ist eine hohe Varianz der Bilder entscheidend. Hat man diese Bilder gesammelt, müssen diese zerschnitten werden, damit sie dem Format entsprechen, das das neuronale Netz verarbeiten kann. Die Funktion [slize.py](https://github.com/MrZinken/SoloYolo/tree/main/dataset) übernimmt dies. Hier müssen lediglich die Ordner spezifiziert werden, indem man die zu zerschneidenden Bilder abgelegt hat und die "Schnipsel" abgelegt werden sollen.
+```
+# Specify input and output folders
+input_folder = "/home/kai/Desktop/2slice"
+output_folder = "/home/kai/Desktop/sliced"
+piece_size = 640 # Specify the size of each piece in pixels
+```
+Außerdem kann die Bildgröße definiert werden, wobei 640x640 eine sinnvoll ist. Sollten sich die Ausgangsbilder unterscheiden, muss dieses Script angepasst werden. Im Folgenden müssen immer wieder Pfade zu gewünschten Ordner spezifiziert werden. Da die Variablen für die Pfade (hoffentlich) selbsterklärend sind, werde ich darauf nicht mehr genauer eingehen.
 
-Semantic Segmentation Model by ultralytics: YOLOv8 m? l?
-https://docs.ultralytics.com/de/tasks/segment/
+Lässt man das Skript laufen und hat die kleineren Bilder, muss man diese durchgehen und vor allem Bilder mit den gewünschten Klassen sammeln. Dies ist relativ aufwändig und erfordert viel Zeit und Konzentration. Es ist wichtig auch Objekte zu erkennen, die nur an den Rändern in das Bild hineinreichen, damit diese auch später erkannt werden. Es ist wichtig hier auch typische False Positives mit in den Datensatz aufzunehmen und auch typische Background Bilder zu behalten. Dabei wird meistens ein Verhältnis von 10 zu 1 vorgeschlagen, von Bildern mit der Klasse zu Background Bildern. In diesem Fall wurde aber ein deutlich kleineres Verhältnis gewählt, da die False Positives ein großes Problem waren und das Model eher lernen musste, was es nicht markieren soll.
+Hat man seinen vorverarbeiteten Datensatz nun gespeichert, ist es sinnvoll ein Backup davon zu erstellen, da jetzt schon viel Arbeit darin steckt.
+Nun wechselt man zu Roboflow und erstellt ein Projekt:
 
-## Testing
+![projekt_erstellen](images/projekt_erstellen.png)
 
-Different metrics to evaluate the models
+Dann legt man den Namen des Projekts, die License und die Klassen fest, die man annotieren will. Ganz wichtig an dieser Stelle ist, dass man unten die Art des Projektes festlegt, in unserem Fall Instance Segmentation:
 
-## Design Choices
+![einrichtung_projekt](images/einrichtung_projekt.png)
 
-Roboflow is a handy tool to generate a dataset for instance segmentation. The instances can be annotadet with polygons and a tool called smart polygon, that sepperates the object automatically. It is not perfect though.
+In die jetzt erscheinende Seite kann man per Drag and Drop die Bilder einfügen und diese hochladen. Mit klicken auf "Save and Continue", gelangt man auf eine Seite auf der man sich rechts zwischen 3 Methoden zum Labeln der Daten entscheiden kann. Hier sollte man "Start Manual Labeling" auswählen, da dies kostenlos ist und man die Kontrolle über die Qualität der Annotationen hat. In einem Untermenü kann ausgewählt werden, welchem Teammitglied, die Annotation zuordnen will. Wenn man Pech hat, muss man es sich selber zuordnen, indem man unten "Assign Images" anklickt. Auf der folgenden Seite gelangt man mit einem Klick auf Start Annotating endlich zu der Umgebung, in der man mit dem Markieren der Daten beginnen kann.
 
-YOLOv8 by ultralytics is a popular model as the API is beginner friendly and training and deployment can be done on average ai stations.
+![annotieren](images/annotieren.png)
 
-## Deployment
+Das Vorgehen beim Annotieren, sollte intuitiv sein und hängt von den Objekten ab, die man markieren will. Dafür stehen einem grundsätzlich zwei Tools zur Verfügung. Für das Labeln von Solarpaneelen hat es sich angeboten das Polygon Tool zu verwenden, das rechts in dem obersten roten Kästchen liegt. Damit kann man Punkte definieren, die das Objekt einschließen sollen. Es ist wichtig die Objekte konsequent bis zum Rand zu markieren und darauf zu achten, dass diese nicht abgeschnitten werden. Alle Fehler, die man hier begeht, werden von dem Model übernommen. Außerdem gibt es ein Tool zur automatischen Abgrenzung, genannt "Smart Polygon, das direkt darunter liegt. Dieses ist erfahrungsgemäß aber nicht präzise genug und kostet durch die Korrektur mehr Zeit als die manuelle Abgrenzung.
+Das kann aber für Objekte die keine geraden Kanten haben und mehr Kontrast gegenüber dem Hintergrund haben anders sein.
+Ist das Objekt abgegrenzt, wird dies durch Drücken der Eingabetaste bestätigt und anschließend kann die gewünschte Klasse oben links gewählt werden.
+Ist kein zu markierendes Objekt in dem Bild vorhanden kann rechts unten das Bild als Background markiert werden (unterstes rotes Kästchen).
+Ich rate dringend zu einem spannenden Hörbuch, damit diese Tätigkeit nicht zu monoton wird.
 
-?
+Sobald alle Bilder gelabelt wurde, können diese in der Projektübersicht unter "Annotate" rechts oben mittels Klick auf "Add x images to Dataset" dem Datensatz hinzugefügt werden. Dabei kann die Aufteilung des Datensatzes bestimmt werden. Normalerweise werden 70 % der Bilder für das Training des Models gewählt, während 20 % für Validierung und 10 % zum Testen verwendet werden. Diese Aufteilung kann so gelassen werden oder in speziellen Fällen varriert werden.
+Die annotierten Bilder könne dann unter dem Reiter "Dataset" und "Health Chek" neben anderen Informationen eingesehen werden.
+Unter "Generate" auf der linken Seite wird dann der Datensatz erstellt, der für unser Model zu verarbeiten ist. Beim "Preprocessing" sind keine Änderungen nötig, man kann direkt mit "Continue" fortfahren.
+Unter "Augmentation" findet man eine der hilfreichsten Tools von Roboflow. Bei der Datenaugmentation werden die gelabelten Bilder auf verschiedene Weisen verändert, während die Markierungen erhalten bleiben. Dadurch erhält man "gratis" einen größeren Datensatz, während das Model zusätzlich robuster gegenüber neuen Daten wird. Mit einem Klick auf "Add Augmentation Step" werden einem folgende Schritte angeboten:
 
+![Augmentation](images/Augmentation.png)
 
+Bedenkenlos kann hier Flip, Rotate angewendet werden. Außerdem sind leichte Veränderungen mittels Hue, Saturation, Brightness und Exposure sinnvoll. Wichtig ist, dass bei diesen Schritten nur Bilder entstehen, die auch wirklich unter normalen Bedingungen entstehen. Ansonsten wird das Model auf Bilder trainiert, die es niemals sehen wird. Die Parameter, mit denen man die einzelnen Augmentation-Schritte ausführt, sollten entsprechend konservativ gewählt werden.
+Anschließend dann mittels Klick auf "Continue" und "Generate" der Datensatz erstellt. Dieser ist unter Versions zu finden.
+Um den Datensatz herunterladen zu können klickt man rechts oben auf "Export Dataset".
+In dem Fenster das erscheint, wählt man unter dem Reiter Format "Yolov8" und wählt das Kästchen "download zip to computer" und klickt auf "Continoue":
+
+![Export](images/export.png)
+
+Dann beginnt der Download des Datensatzes in dem benötigten Format. Dieser sollte entpackt an einem sinnvollen Ort gespeichert werden. Von dem Trainingsdatensatz sollte ein Backup erstellt werden. Den Pfad zu "data.yaml" wird im folgenden Schritt benötigt.
+
+Jetzt ist ein Großteil der Arbeit für uns Menschen erledigt und das Training kann beginnen.
+
+## Training
+
+Die Funktion für das Training ist denkbar einfach:
+
+![Training](images/training.png)
+
+In der Variablen "model" legt man fest, welches Model von Ultralytics genutzt werden soll. Dabei gibt "yolov8" die Version an. Es wird bereits an yolov9 gearbeitet, aber dieses Model steht Anfang 2024 noch nicht für die Segmentation zur Verfügung. Das "l" steht für die Größe, in diesem Fall large. Außerdem gibt es noch "n" für nano, "s" für small, "m" für medium und "xl" für extra large. Die Endung "-seg" gibt die Funktion des Models an und steht für Segmentation. Und schließlich ist ".pt" die Dateiendung und steht für Checkpointing Model im Pickle Format.
+
+Welche Größe man nutzt, hängt von der zur Verfügung stehenden Rechenleistung/Bearbeitungszeit ab, aber auch der Größe des Datensatzes, der Anzahl an Klassen und der Komplexität der Aufgabe ab. Als Startpunkt ist das Medium Model geeignet.
+
+Die Variable "batch" nimmt Integerwerte an und sagt aus, wie viele Bilder pro Traingslauf(epochs) geladen werden sollen. Diese sollten unter gegebener Hardware möglichst hoch gewählt werden, da dadurch eine weniger spezifisches Lernverhalten gewährleistet wird. Dafür ist der Grafikspeicher der limitierende Faktor. Je größer das Model ist, desto weniger Speicher bleibt für die Bilder übrig.
+
+Mit "device" kann man festlegen, ob mit der GPU trainiert werden soll. Unterstützt der Computer Cuda Treiber sollten diese dringend installiert werden und "cuda" gewählt werden. Dadurch wird die Performance deutlich gesteigert. Ist es nicht möglich Cuda Treiber zu installieren, muss hier "cpu" gewählt werden.
+
+Mit "data" wird der Pfad zur "data.yaml" angegeben. Diese Datei liegt im Datensatz Ordner.
+
+"epochs" gibt die Anzahl an Trainingsläufen an. Multipliziert man diese Zahl mit "batch", erhält man die Anzahl an Bildern, die das neuronale Netz sehen wird. Diese sollte nie unter der Anzahl an Bildern liegen, die im Datensatz liegen. Hier sollte ein möglichst hoher Wert gewählt werden. Sollte kein Performancegewinn mehr auftreten, bricht das Training frühzeitig ab.
+
+Schließlich gibt "imgsz" die Größe der Bilder an. Hier ist 640 der default Wert.
+
+Führt man dieses Script aus, läuft das Training. Sollte ein Fehler geworfen werden, ist wahrscheinlich die Batch Size zu groß, oder ein Pfad ist falsch angelegt. Im ersten Fall sollte die Batch Größe sukzessive verringert werden und im zweiten die Pfade zur data.yaml und die Pfade in der data.yaml geprüft werden.
+
+Ist das Training abgeschlossen, werden die Gewichte und einige Metriken unter "runs/segment" gespeichert. Nun sollte man sich die Ergebnisse anschauen und bestenfalls eigene Metriken erstellt werden, sollte der Testdatensatz groß genug sein.
+
+## Performance
+
+Im Ordner runs/segment/trainx findet man automatisch erstellte Metriken. Die normalisierte Konfusion Matrix ist ein geeigneter Einstieg um die Performance des Models zu evaluieren. Dabei sollte der Schwerpunkt auf der Diagonalen liegen. Hier zeigt sich, dass das Model in dieser Anwendung häufig Probleme mit False Positives hat.
+Die Mean Average Precision (mAP) gibt eine Idee von der Präzision der Zuordung über alle Klassen an.
+Intersection over Union (IoU) ist eine Metrik um zu zeigen, wie gut die erstellte Maske über dem Ground Truth liegt.
+Der F1 Score Ergibt sich aus der dem Recall und der Precision und ist gibt somit einen ersten Eindruck über die Performance für False Positives und False Negatives.
+
+Um eigene Metriken zu erstellen, muss zunächst unter mit der "just_predict.py" Prediciton Masks erstellt werden. Dafür wählt man die gewünschten Gewichte aus und den legt den Pfad zu den Testbildern fest. Dabei wird immer nur eine Klasse getestet, die in der Variable "object_class" festgelegt wird. In diesem Fall ist das solar_panel. Außerdem führt man unter "performance" "labels2masks" aus. Hier muss der Pfad zu dem Ordner mit den Labeln im Testdatensatz festgelet werden. Danach sollten die Masken mit der Vorhersage des Models im Ordner "output" und die Ground Truth Masken im Ordner "masks" gespeichert sein. Diese können visuell inspiziert werden, um einen ersten Eindruck zu bekommen. Die Masken sollten sich ähneln und müssen dieselben Namen haben.
+Unter "perfomrance/average_metrics" werden dann jeweils die Pfade zu den beiden Ordnern angegeben und dieses Script ausgeführt. Dabei werden die Metriken im Terminal ausgegeben:
+
+![Metriken](images/metriken.png)
+
+Ist die Performance zufriedenstellend kann, man mit der Anwendung des Models fortfahren, um ein Geolayer aus den Daten zu erstellen.
+
+## Anwendung
+
+Die Voraussetzung um das Model anzuwenden sind neben einem trainierten Model noch die Bilddaten im richtigen Format mit dazugehöriger Georeferenzen. Die Georeferenz dient dazu, dass die vorhergesagten Masken von Anwendungen wie QGis an den korrekten Positionen geladen werden können. Dazu muss die Georefenz als Worldfile mit demselben Namen wie das Tiff vorliegen. Die Endung von Worldfiles für Tiffs ist ".tfw".
+
+Sind diese Voraussetzungen erfüllt müssen lediglich einige Variablen spezifiziert werden
+
+![anwendung](images/anwendung.png)
+
+"model" gibt den Pfad zu den gewünschten Gewichten an.
+Im "input_folder" werden sind die zu verabeitenden Tiff Bilder und Georeferenzen hinterlegt. Der "tile_folder" dient lediglich zur als zwischen Speicher und im "outputfolder" werden die jeweiligen GeoPackages der einzelnen Bilder gespeichert.
+Die Variablen "num_rows", "num_cols" und "tile_size" sollten unverändert gelassen werden, wenn die Bilder eine Ausgangsgröße von 10000 mal 10000 Pixeln haben.
+In "object_class" wird bestimmt, welche Klasse das Model erkennen soll. Die Nummer korrespondiert mit dem Wert aus data.yaml, die wiederum durch das Erstellen der Trainingsdaten erzeugt wurde.
+"confidence" gibt an ab welcher Konfidenz ein Element segmentiert werden soll. Werden zu viele False Positives erkannt, kann dieser Wert erhöht werden, dabei besteht aber die Gefahr, dass zu viele True Positives übersehen werden. 0.4 oder 0.5 sind vernünftige Werte.
+Unter "target_srs" kann man das Georeference System festlegen. Dies ist für NRW üblicherweise 25832.
+Sollte nicht der ganze Ordner analysiert werden, kann man mit "found_start" = False und "start_at_name" festlegen, ab welchem Dateinamen vorhergesagt werden soll.
+
+Hat man alle Variablen angepasst und lässt das Programm laufen, werden die einzelnen Tiffs zunächst auf eine Größe von 9600 mal 9600 ins JPG Format gebracht und dann in 225 Bilder zerschnitten. Die Solarpaneele werden dann in den einzelnen Bildern markiert und als Binärmaske ausgegeben. Diese Binärmasken, werden dann wieder zu einem Bild zusammengesetzt und Masken, die nahe beieinander liegen, werden verbunden. Dieser Schritt ist nötig, da es an Bildrändern öfter zu nicht erkannten Bereichen kommt. Diese zusammengesetzen Bilder entsprechen dann den Ursprungs Tiffs. Zusammen mit den Wordlfiles wird daraus dann ein Geopackage erstellt. Diese werden im Output Ordner gespeichert und nicht gelöscht. Sind alle Ausgangsbilder analysiert worden, werden die Geopackages zu einem einzelnen Geopackage zusammengesetzt.
+
+Glückwunsch, damit wurde ein Layer von dem gesuchten Objekt erstellt, das nun beliebig analysiert werden kann.

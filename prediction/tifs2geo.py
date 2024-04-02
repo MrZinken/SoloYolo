@@ -271,9 +271,11 @@ def combine_geopackages(input_folder, output_geopackage):
 # load a custom model
 model = YOLO('/home/kai/Documents/SoloYolo/runs/segment/train2/weights/best.pt')
 # Input and output folders
-input_folder = '/media/kai/Bonn/DOP_2022_2_5_cm_rgb'
-output_folder = '/home/kai/Documents/bonn/output'
-tile_folder = '/home/kai/Documents/bonn/tiles'
+input_folder = '/home/kai/Desktop/input'
+output_folder = '/home/kai/Desktop/newfolder'
+tile_folder = '/home/kai/Desktop/input/tiles'
+
+
 output_geopackage = '/home/kai/Desktop/solar_panel_new.gpkg'
 
 # Create output folder if it doesn't exist
@@ -328,6 +330,5 @@ for filename in os.listdir(input_folder):
         output_gpkg = os.path.join(output_folder, f'{base_filename}.gpkg')
         raster_to_vector(tif_path, world_file, output_gpkg, target_srs=25832)
         os.remove(tif_path)
-"""
+
 combine_geopackages(output_folder, output_geopackage)
-"""
