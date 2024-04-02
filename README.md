@@ -123,3 +123,9 @@ Um eigene Metriken zu erstellen muss zunächst unter mit der "just_predict.py" P
 Unter "perfomrance/average_metrics"  werden dann jeweils die Pfade zu den beiden Ordnern angegeben und dieses Script ausgeführt. Dabei werden die Metriken im Terminal ausgegeben:
 
 ![Metriken](images/metriken.png)
+
+Ist die Performance zufriedenstellend kann man mit der Anwenung des Models fortfahren um ein Geolayer aus den Daten zu erstellen. 
+
+## Anwendung
+
+
