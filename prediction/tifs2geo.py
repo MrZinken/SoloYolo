@@ -270,10 +270,10 @@ def combine_geopackages(input_folder, output_geopackage):
 
 
 # load a custom model
-model = YOLO('/home/kai/Documents/SoloYolo/runs/segment/best/best.pt')
+#model = YOLO('/home/kai/Documents/SoloYolo/runs/segment/best/best.pt')
 # Input and output folders
 input_folder = '/home/kai/Desktop/input'
-output_folder = '/home/kai/Desktop/output'
+output_folder = '/home/kai/Desktop/newfolder'
 tile_folder = '/home/kai/Desktop/input/tiles'
 output_geopackage = '/home/kai/Desktop/solar_panel_new.gpkg'
 
@@ -298,7 +298,7 @@ target_srs=25832
 
 start_at_name = "63002400.tif"  # Specify the starting point
 found_start = True       # Set to True if you want to start at the beginning
-
+"""
 # Iterate over the files in the input folder
 for filename in os.listdir(input_folder):
     if not found_start:
@@ -331,4 +331,3 @@ for filename in os.listdir(input_folder):
         os.remove(tif_path)
 """
 combine_geopackages(output_folder, output_geopackage)
-"""
