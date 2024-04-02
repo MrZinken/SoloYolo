@@ -295,8 +295,8 @@ confidence = 0.5
 target_srs=25832
 #specify the georeference 
 
-start_at_name = "63002400.tif"  # Specify the starting point
-found_start = True       # Set to True if you want to start at the beginning
+start_at_name = "72752250.tif"  # Specify the starting point
+found_start = False       # Set to True if you want to start at the beginning
 
 # Iterate over the files in the input folder
 for filename in os.listdir(input_folder):
