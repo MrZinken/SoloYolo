@@ -86,7 +86,15 @@ In dem Fenster das erscheint, wählt man unter dem Reiter Format "Yolov8" und w�
 
 Dann beginnt der Download des Datensatzes in dem benötigten Format. Dieser sollte entpackt an einem sinnvollen Ort gespeichert werden. Den Pfad dorthin benötigen wir im nächsten Schritt. Auch hier kann ein Backup nicht schaden.
 
-Jetzt ist ein Großteil der Arbeit erledigt und das Training kann beginnen.
+Jetzt ist ein Großteil der Arbeit für uns Menschen erledigt und das Training kann beginnen.
 
+## Training
 
+Die Funktion für das Training ist denkbar einfach:
+
+![Training](images/training.png)
+
+In der Variablen "model" legt man fest, welches Model von Ultralytics genutzt werden soll. Dabei gibt "yolov8" die Version an. Es wird bereits an yolov9 gearbeitet, aber dieses Model steht Anfang 2024 noch nicht für die Segementation zur Verfügung. Das "l" steht für die Größe, in diesem Fall large. Außerdem gibt es noch "n" für nano, "s" für small, "m" für medium und "xl" für extra large. Die Endung "-seg" gibt die Funktion des Models an und steht für Segmentation. Und schließlich ist ".pt" die Dateiendung und steht für Checkpointing Model im Pickle Format.
+
+Welche Größe man nutzt hängt von der zur Verfügung stehenden Rechenleistung/Bearbeitungszeit ab, aber auch der Größe des Datensatzes, der Anzahl an Klassen und der Komplexität der Aufgabe ab. Als Startpunkt ist das Medium Model zu wählen.
 
