@@ -94,47 +94,54 @@ Die Funktion für das Training ist denkbar einfach:
 
 ![Training](images/training.png)
 
-In der Variablen "model" legt man fest, welches Model von Ultralytics genutzt werden soll. Dabei gibt "yolov8" die Version an. Es wird bereits an yolov9 gearbeitet, aber dieses Model steht Anfang 2024 noch nicht für die Segementation zur Verfügung. Das "l" steht für die Größe, in diesem Fall large. Außerdem gibt es noch "n" für nano, "s" für small, "m" für medium und "xl" für extra large. Die Endung "-seg" gibt die Funktion des Models an und steht für Segmentation. Und schließlich ist ".pt" die Dateiendung und steht für Checkpointing Model im Pickle Format.
+In der Variablen "model" legt man fest, welches Model von Ultralytics genutzt werden soll. Dabei gibt "yolov8" die Version an. Es wird bereits an yolov9 gearbeitet, aber dieses Model steht Anfang 2024 noch nicht für die Segmentation zur Verfügung. Das "l" steht für die Größe, in diesem Fall large. Außerdem gibt es noch "n" für nano, "s" für small, "m" für medium und "xl" für extra large. Die Endung "-seg" gibt die Funktion des Models an und steht für Segmentation. Und schließlich ist ".pt" die Dateiendung und steht für Checkpointing Model im Pickle Format.
 
-Welche Größe man nutzt hängt von der zur Verfügung stehenden Rechenleistung/Bearbeitungszeit ab, aber auch der Größe des Datensatzes, der Anzahl an Klassen und der Komplexität der Aufgabe ab. Als Startpunkt ist das Medium Model geeignet. 
+Welche Größe man nutzt, hängt von der zur Verfügung stehenden Rechenleistung/Bearbeitungszeit ab, aber auch der Größe des Datensatzes, der Anzahl an Klassen und der Komplexität der Aufgabe ab. Als Startpunkt ist das Medium Model geeignet.
 
-Die Variable "batch" nimmt Integer Werte an und sagt aus, wie viele Bilder pro Traingslauf(epochs) geladen werden sollen. Diese sollten unter gegebener Hardware möglichst hoch gewählt werden, da dadurch eine weniger spezifisches Lernverhalten gewärhleistet wird. Dafür ist der Grafikspeicher der limitierende Faktor. Je Größer das Model ist, desto weniger Speicher bleibt für die Bilder übrig.
+Die Variable "batch" nimmt Integerwerte an und sagt aus, wie viele Bilder pro Traingslauf(epochs) geladen werden sollen. Diese sollten unter gegebener Hardware möglichst hoch gewählt werden, da dadurch eine weniger spezifisches Lernverhalten gewährleistet wird. Dafür ist der Grafikspeicher der limitierende Faktor. Je größer das Model ist, desto weniger Speicher bleibt für die Bilder übrig.
 
-Mit "device" kann man festlegen, ob mit der GPU trainiert werden soll. Unterstützt der Computer Cuda Treiber sollten diese dringend installiert werden und "cuda" gewählt werden. Dadurch wird die Performance deutlich gesteigert. Ist es nicht möglich Cuda Treiber zu installieren, muss hier "cpu" gewählt werden. 
+Mit "device" kann man festlegen, ob mit der GPU trainiert werden soll. Unterstützt der Computer Cuda Treiber sollten diese dringend installiert werden und "cuda" gewählt werden. Dadurch wird die Performance deutlich gesteigert. Ist es nicht möglich Cuda Treiber zu installieren, muss hier "cpu" gewählt werden.
 
 Mit "data" wird der Pfad zur "data.yaml" angegeben. Diese Datei liegt im Datensatz Ordner.
 
-"epochs" gibt die Anzahl an Trainingsläufen an. Multipliziert man diese Zahl mit "batch", erhält man die Anzahl an Bildern die das Neuronale Netz sehen wird. Diese sollte nie unter der Anzahl an Bildern liegen, die im Datensatz liegen. Hier sollte ein möglichst hoher Wert gewählt werden. Sollte kein Performancegewinn mehr auftreten bricht das Training frühzeitig ab.
+"epochs" gibt die Anzahl an Trainingsläufen an. Multipliziert man diese Zahl mit "batch", erhält man die Anzahl an Bildern, die das neuronale Netz sehen wird. Diese sollte nie unter der Anzahl an Bildern liegen, die im Datensatz liegen. Hier sollte ein möglichst hoher Wert gewählt werden. Sollte kein Performancegewinn mehr auftreten, bricht das Training frühzeitig ab.
 
 Schließlich gibt "imgsz" die Größe der Bilder an. Hier ist 640 der default Wert.
 
-Führt man dieses Script aus, läuft das Training. Sollte ein Fehler geworfen werden, ist wahrscheinlich die Batch Size zu groß, oder ein Pfad ist falsch angelegt. Im ersten Fall, sollte die Batch Size sukkzesive verringert werden und im zweiten die Pfade zur data.yaml und die Pfade in der data.yaml geprüft werden.
+Führt man dieses Script aus, läuft das Training. Sollte ein Fehler geworfen werden, ist wahrscheinlich die Batch Size zu groß, oder ein Pfad ist falsch angelegt. Im ersten Fall sollte die Batch Größe sukzessive verringert werden und im zweiten die Pfade zur data.yaml und die Pfade in der data.yaml geprüft werden.
 
-Ist das Training abgeschlossen werden die Gewichte und einige Metriken unter "runs/segment" gespeichert. Nun sollte man sich die Ergebnisse anschauen und bestenfalls eigene Metriken erstellt werden, sollte der Testdatensatz groß genug sein.
+Ist das Training abgeschlossen, werden die Gewichte und einige Metriken unter "runs/segment" gespeichert. Nun sollte man sich die Ergebnisse anschauen und bestenfalls eigene Metriken erstellt werden, sollte der Testdatensatz groß genug sein.
 
 ## Performance
 
-Im Ordner runs/segment/trainx findet man automatisch erstellte Metriken. Die normalisierte Konfusion Matrix ist ein geeigneter Einstieg um die Performance des Models zu evaluieren. Dabei sollte der Schwerpunkt auf der Diagonalen liegen. Hier ziegt sich, dass das Model in dieser Anwendung häufig Probleme mit False Positives hat. 
-Die Mean Average Precision (mAP) gibt eine Idee von der Präzision der Zurordung über alle Klassen an.
-Intersection over Union (IoU) ist eine Metrik um zu zeigen, wie gut die erstellte Maske über dem Ground Truth liegt. 
-Der F1 Score Ergibt sich aus der dem Recall und der Precision und ist gibt somit einen ersten Eindruck über die Perfomrance für False Positives und False Negatives.
+Im Ordner runs/segment/trainx findet man automatisch erstellte Metriken. Die normalisierte Konfusion Matrix ist ein geeigneter Einstieg um die Performance des Models zu evaluieren. Dabei sollte der Schwerpunkt auf der Diagonalen liegen. Hier zeigt sich, dass das Model in dieser Anwendung häufig Probleme mit False Positives hat.
+Die Mean Average Precision (mAP) gibt eine Idee von der Präzision der Zuordung über alle Klassen an.
+Intersection over Union (IoU) ist eine Metrik um zu zeigen, wie gut die erstellte Maske über dem Ground Truth liegt.
+Der F1 Score Ergibt sich aus der dem Recall und der Precision und ist gibt somit einen ersten Eindruck über die Performance für False Positives und False Negatives.
 
-Um eigene Metriken zu erstellen muss zunächst unter mit der "just_predict.py" Prediciton Masks erstellt werden. Dafür wählt man die gewünschten Gewichte aus und den legt den Pfad zu den Testbilder fest. Dabei wird immer nur eine Klasse getestet, die in der Variable "object_class" festgelegt wird. In diesem Fall ist das solar_panel.  Außerdem führt man unter "performance" "labels2masks" aus. Hier muss der Pfad zu dem Ordner mit den Labeln im Testdatensatz festgelet werden. Danach sollten die Masken mit der Vorhersage des Models im Ordner "output" und die Ground Truth Masken im Ordner "masks" gespeichert sein. Diese können visuell inspiziert werden, um einen ersten Eindruck zu bekommen. Die Masken sollten sich ähneln und müssen die selben Namen haben. 
-Unter "perfomrance/average_metrics"  werden dann jeweils die Pfade zu den beiden Ordnern angegeben und dieses Script ausgeführt. Dabei werden die Metriken im Terminal ausgegeben:
+Um eigene Metriken zu erstellen, muss zunächst unter mit der "just_predict.py" Prediciton Masks erstellt werden. Dafür wählt man die gewünschten Gewichte aus und den legt den Pfad zu den Testbildern fest. Dabei wird immer nur eine Klasse getestet, die in der Variable "object_class" festgelegt wird. In diesem Fall ist das solar_panel. Außerdem führt man unter "performance" "labels2masks" aus. Hier muss der Pfad zu dem Ordner mit den Labeln im Testdatensatz festgelet werden. Danach sollten die Masken mit der Vorhersage des Models im Ordner "output" und die Ground Truth Masken im Ordner "masks" gespeichert sein. Diese können visuell inspiziert werden, um einen ersten Eindruck zu bekommen. Die Masken sollten sich ähneln und müssen dieselben Namen haben.
+Unter "perfomrance/average_metrics" werden dann jeweils die Pfade zu den beiden Ordnern angegeben und dieses Script ausgeführt. Dabei werden die Metriken im Terminal ausgegeben:
 
 ![Metriken](images/metriken.png)
 
-Ist die Performance zufriedenstellend kann man mit der Anwenung des Models fortfahren um ein Geolayer aus den Daten zu erstellen. 
+Ist die Performance zufriedenstellend kann, man mit der Anwendung des Models fortfahren, um ein Geolayer aus den Daten zu erstellen.
 
 ## Anwendung
 
-Die Voraussetzung um das Model anzuwenden sind neben einem Trainierten Model noch die Bilddaten im richtigen Format mit dazugehöriger Georeferenzen. Die Georeferenz dient dazu, dass die Vorhergesagten Masken von Anwendungen wie QGis an den korrekten Positionen geladen werden können. Dazu muss die Georefenz als Worldfile mit dem selben Namen wie das Tiff vorliegen. Die Endung von Worldfiles für Tiffs ist ".tfw". 
+Die Voraussetzung um das Model anzuwenden sind neben einem trainierten Model noch die Bilddaten im richtigen Format mit dazugehöriger Georeferenzen. Die Georeferenz dient dazu, dass die vorhergesagten Masken von Anwendungen wie QGis an den korrekten Positionen geladen werden können. Dazu muss die Georefenz als Worldfile mit demselben Namen wie das Tiff vorliegen. Die Endung von Worldfiles für Tiffs ist ".tfw".
 
 Sind diese Voraussetzungen erfüllt müssen lediglich einige Variablen spezifiziert werden
 
 ![anwendung](images/anwendung.png)
 
-"model" gibt den Pfad zu den gewünschten Gewichten an. 
+"model" gibt den Pfad zu den gewünschten Gewichten an.
 Im "input_folder" werden sind die zu verabeitenden Tiff Bilder und Georeferenzen hinterlegt. Der "tile_folder" dient lediglich zur als zwischen Speicher und im "outputfolder" werden die jeweiligen GeoPackages der einzelnen Bilder gespeichert.
+Die Variablen "num_rows", "num_cols" und "tile_size" sollten unverändert gelassen werden, wenn die Bilder eine Ausgangsgröße von 10000 mal 10000 Pixeln haben.
+In "object_class" wird bestimmt, welche Klasse das Model erkennen soll. Die Nummer korrespondiert mit dem Wert aus data.yaml, die wiederum durch das Erstellen der Trainingsdaten erzeugt wurde.
+"confidence" gibt an ab welcher Konfidenz ein Element segmentiert werden soll. Werden zu viele False Positives erkannt, kann dieser Wert erhöht werden, dabei besteht aber die Gefahr, dass zu viele True Positives übersehen werden. 0.4 oder 0.5 sind vernünftige Werte.
+Unter "target_srs" kann man das Georeference System festlegen. Dies ist für NRW üblicherweise 25832.
+Sollte nicht der ganze Ordner analysiert werden, kann man mit "found_start" = False und "start_at_name" festlegen, ab welchem Dateinamen vorhergesagt werden soll.
 
+Hat man alle Variablen angepasst und lässt das Programm laufen, werden die einzelnen Tiffs zunächst auf eine Größe von 9600 mal 9600 ins JPG Format gebracht und dann in 225 Bilder zerschnitten. Die Solarpaneele werden dann in den einzelnen Bildern markiert und als Binärmaske ausgegeben. Diese Binärmasken, werden dann wieder zu einem Bild zusammengesetzt und Masken, die nahe beieinander liegen, werden verbunden. Dieser Schritt ist nötig, da es an Bildrändern öfter zu nicht erkannten Bereichen kommt. Diese zusammengesetzen Bilder entsprechen dann den Ursprungs Tiffs. Zusammen mit den Wordlfiles wird daraus dann ein Geopackage erstellt. Diese werden im Output Ordner gespeichert und nicht gelöscht. Sind alle Ausgangsbilder analysiert worden, werden die Geopackages zu einem einzelnen Geopackage zusammengesetzt.
 
+Glückwunsch, damit wurde ein Layer von dem gesuchten Objekt erstellt, das nun beliebig analysiert werden kann.
