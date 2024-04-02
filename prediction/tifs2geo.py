@@ -269,19 +269,13 @@ def combine_geopackages(input_folder, output_geopackage):
 
 
 # load a custom model
-<<<<<<< HEAD
-#model = YOLO('/home/kai/Documents/SoloYolo/runs/segment/best/best.pt')
+model = YOLO('/home/kai/Documents/SoloYolo/runs/segment/train2/weights/best.pt')
 # Input and output folders
 input_folder = '/home/kai/Desktop/input'
 output_folder = '/home/kai/Desktop/newfolder'
 tile_folder = '/home/kai/Desktop/input/tiles'
-=======
-model = YOLO('/home/kai/Documents/SoloYolo/runs/segment/train2/weights/best.pt')
-# Input and output folders
-input_folder = '/media/kai/Bonn/DOP_2022_2_5_cm_rgb'
-output_folder = '/home/kai/Documents/bonn/output'
-tile_folder = '/home/kai/Documents/bonn/tiles'
->>>>>>> f9eb8b180d6bf20b34f48bf35a4e4acace572826
+
+
 output_geopackage = '/home/kai/Desktop/solar_panel_new.gpkg'
 
 # Create output folder if it doesn't exist
@@ -305,7 +299,7 @@ target_srs=25832
 
 start_at_name = "63002400.tif"  # Specify the starting point
 found_start = True       # Set to True if you want to start at the beginning
-"""
+
 # Iterate over the files in the input folder
 for filename in os.listdir(input_folder):
     if not found_start:
@@ -336,5 +330,5 @@ for filename in os.listdir(input_folder):
         output_gpkg = os.path.join(output_folder, f'{base_filename}.gpkg')
         raster_to_vector(tif_path, world_file, output_gpkg, target_srs=25832)
         os.remove(tif_path)
-"""
+
 combine_geopackages(output_folder, output_geopackage)
