@@ -117,7 +117,8 @@ Ist das Training abgeschlossen, werden die Gewichte und einige Metriken unter "r
 Sobald das Training beendet wurde, ist es wichtig einen ersten Eindruck des Trainings zu gewinnen. Einige grafische dargestellte Metriken, die automatisch von Ultraylitcs bereitgestellt werden, findet man unter runs/segment/trainx. Hier sind die unter "resluts.png" gespeicherten Graphen von Relevanz. 
 
 ![results](images/results.png) 
-Der Segmentation Loss, in dem Kasten rot umrandet, ist für die Segmentation die schwierigste und damit relevanteste Metrik. Diese sollte konstant sinken. Dass der Segmentation Loss auf den Validierungsdaten leicht steigt, ist nicht optimal, aber bei dem schwachen Anstieg kein großes Problem. Tendenziell sollen die acht linken Graphen einen Abwärtstrend zeigen, während die rechten Graphen steigen sollten.
+Der Segmentation Loss, von dem Kasten rot umrandet, ist für die Segmentation die schwierigste und damit relevanteste Metrik. Diese sollte konstant sinken. Dass der Segmentation Loss auf den Validierungsdaten leicht steigt, ist nicht optimal, aber bei dem schwachen Anstieg kein großes Problem. Dennoch kann dies ein Hinweis auf ein Problem sein. So kann es sein, dass eine Klasse overfitted wird, während die anderen noch deutlich besser klassifiziert werden.
+Tendenziell sollen die acht linken Graphen einen Abwärtstrend zeigen, während die rechten Graphen steigen sollten.
 
 Die normalisierte Konfusion Matrix ist ein der nächste Punkt, um die Performance des Models zu evaluieren. Dabei sollte der Schwerpunkt auf der Diagonalen liegen. Hier zeigt sich, dass das Model in dieser Anwendung häufig Probleme mit False Positives hat.
 Die Mean Average Precision (mAP) gibt eine Idee von der Präzision der Zuordnung über alle Klassen an.
