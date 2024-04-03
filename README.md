@@ -104,7 +104,7 @@ Mit "device" kann man festlegen, ob mit der GPU trainiert werden soll. Unterstü
 
 Mit "data" wird der Pfad zur "data.yaml" angegeben. Diese Datei liegt im Datensatz Ordner.
 
-"epochs" gibt die Anzahl an Trainingsläufen an. Multipliziert man diese Zahl mit "batch", erhält man die Anzahl an Bildern, die das neuronale Netz sehen wird. Diese sollte nie unter der Anzahl an Bildern liegen, die im Datensatz liegen. Hier sollte ein möglichst hoher Wert gewählt werden. Sollte kein Performancegewinn mehr auftreten, bricht das Training frühzeitig ab.
+"epochs" gibt die Anzahl an Trainingsläufen an. Pro Epoche werden dem Neuronalen Netz alle Bilder einmal gezeigt. Es hat sich gezeigt, dass es sinnvoll ist, mit vielen Epochen zu trainieren, da sich die Performance dadurch deutlich stiegern lässt. Hier sollte ein möglichst hoher Wert gewählt werden. Bei einer zu hohen Anzahl an Epochen besteht die Gefahr des Overfitting. Einfach gesagt lernt das Model die Trainingsdaten dabei auswendig, entwickelt aber kein Verständnis von dem dahinterliegenden Konzept und ist somit nicht robust gegenüber neuen Daten. Dieses Framerwork erkennt dies jedoch und bricht das Training ab, sollte kein Performancegewinn mehr auftreten.
 
 Schließlich gibt "imgsz" die Größe der Bilder an. Hier ist 640 der default Wert.
 
