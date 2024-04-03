@@ -144,4 +144,15 @@ Sollte nicht der ganze Ordner analysiert werden, kann man mit "found_start" = Fa
 
 Hat man alle Variablen angepasst und lässt das Programm laufen, werden die einzelnen Tiffs zunächst auf eine Größe von 9600 mal 9600 ins JPG Format gebracht und dann in 225 Bilder zerschnitten. Die Solarpaneele werden dann in den einzelnen Bildern markiert und als Binärmaske ausgegeben. Diese Binärmasken, werden dann wieder zu einem Bild zusammengesetzt und Masken, die nahe beieinander liegen, werden verbunden. Dieser Schritt ist nötig, da es an Bildrändern öfter zu nicht erkannten Bereichen kommt. Diese zusammengesetzen Bilder entsprechen dann den Ursprungs Tiffs. Zusammen mit den Wordlfiles wird daraus dann ein Geopackage erstellt. Diese werden im Output Ordner gespeichert und nicht gelöscht. Sind alle Ausgangsbilder analysiert worden, werden die Geopackages zu einem einzelnen Geopackage zusammengesetzt.
 
+### Nachbearbeitung
+
+Da Verfahren im Bereich des maschinellen Lernens nicht fehlerfrei sind, kann die Qualität der finalen Daten noch durch Nachbearbeitung verbessert werden. Hier sollen einige Funktionen in QGis erläutert werden, mit denen der Vektorlayer so verändert wird, dass False Positives herausgefiltert werden, eigentlich zusammenhängende Features vereinigt werden und Defekte korrigiert werden.
+Zunächst sollten Defekte mit der Funktion "v.clean" bereinigt werden, damit die folgenden Funktionen sauber arbeiten können. Dies kann mit Default Werten ausgeführt werden. 
+Anschließend sollten alle Features, die kleiner als 0.5 Quadratmeter sind, herausgefiltert werden, da es sich dabei sehr wahrscheinlich um falsch erkannte Objekte handelt. ??????
+Außerdem sollten alle Features entfernt werden, die nicht auf Gebäudeflächen liegen. Im urbanen Kontext liegen fast alle Solarpaneele auf Dachflächen. Dazu benötigt man einen Layer mit allen Gebäuden.?????
+Danach können Features vereinigt werden, indem man "Buffer" mit einer Stärke von 0,02 m anwendet und die sich nun überlappenden Features mittels "Dissolve" vereinigt. Anschließend muss Buffer mit -0,02 m angewendet werden, um zu der ursprünglichen Größe der Features zu gelangen.
+Diesen Layer kann man mittels "Simplify" vereinfachen. Dabei sollte ein Wert von etwa 0,1 m gewählt werden. Durch diese Glättung wird die Speichergröße des Datensatzes nicht nur verkleinert, sonder nähert sich deutlich den reellen Flächen an.
+
+
+
 Glückwunsch, damit wurde ein Layer von dem gesuchten Objekt erstellt, das nun beliebig analysiert werden kann.
