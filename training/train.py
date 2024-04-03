@@ -13,10 +13,10 @@ else:
 model = YOLO("yolov9c-seg.pt")
 
 results = model.train(
-        batch=13,
+        batch=12,
         device = training_device,
         data="/home/kai/Documents/solar/15/data.yaml",
-        epochs=180,
+        epochs=120,
         imgsz=640,
     )
 
