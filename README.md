@@ -114,12 +114,17 @@ Ist das Training abgeschlossen, werden die Gewichte und einige Metriken unter "r
 
 ## Performance
 
-Im Ordner runs/segment/trainx findet man automatisch erstellte Metriken. Die normalisierte Konfusion Matrix ist ein geeigneter Einstieg um die Performance des Models zu evaluieren. Dabei sollte der Schwerpunkt auf der Diagonalen liegen. Hier zeigt sich, dass das Model in dieser Anwendung häufig Probleme mit False Positives hat.
-Die Mean Average Precision (mAP) gibt eine Idee von der Präzision der Zuordung über alle Klassen an.
-Intersection over Union (IoU) ist eine Metrik um zu zeigen, wie gut die erstellte Maske über dem Ground Truth liegt.
-Der F1 Score Ergibt sich aus der dem Recall und der Precision und ist gibt somit einen ersten Eindruck über die Performance für False Positives und False Negatives.
+Sobald das Training beendet wurde, ist es wichtig einen ersten Eindruck des Trainings zu gewinnen. Einige grafische dargestellte Metriken, die automatisch von Ultraylitcs bereitgestellt werden, findet man unter runs/segment/trainx. Hier sind die unter "resluts.png" gespeicherten Graphen von Relevanz. 
 
-Um eigene Metriken zu erstellen, muss zunächst unter mit der "just_predict.py" Prediciton Masks erstellt werden. Dafür wählt man die gewünschten Gewichte aus und den legt den Pfad zu den Testbildern fest. Dabei wird immer nur eine Klasse getestet, die in der Variable "object_class" festgelegt wird. In diesem Fall ist das solar_panel. Außerdem führt man unter "performance" "labels2masks" aus. Hier muss der Pfad zu dem Ordner mit den Labeln im Testdatensatz festgelet werden. Danach sollten die Masken mit der Vorhersage des Models im Ordner "output" und die Ground Truth Masken im Ordner "masks" gespeichert sein. Diese können visuell inspiziert werden, um einen ersten Eindruck zu bekommen. Die Masken sollten sich ähneln und müssen dieselben Namen haben.
+![results](images/results.png) 
+Der Segmentation Loss, in dem Kasten rot umrandet, ist für die Segmentation die schwierigste und damit relevanteste Metrik. Diese sollte konstant sinken. Dass der Segmentation Loss auf den Validierungsdaten leicht steigt, ist nicht optimal, aber bei dem schwachen Anstieg kein großes Problem. Tendenziell sollen die vier linken  Graphen einen Abwärtstrend zeigen, während die rechten Graphen steigen sollten.
+
+Die normalisierte Konfusion Matrix ist ein der nächste Punkt, um die Performance des Models zu evaluieren. Dabei sollte der Schwerpunkt auf der Diagonalen liegen. Hier zeigt sich, dass das Model in dieser Anwendung häufig Probleme mit False Positives hat.
+Die Mean Average Precision (mAP) gibt eine Idee von der Präzision der Zuordnung über alle Klassen an.
+Intersection over Union (IoU) ist eine Metrik um zu zeigen, wie gut die erstellte Maske über dem Ground Truth liegt.
+Der F1 Score ergibt sich aus der dem Recall und der Precision und ist gibt somit einen ersten Eindruck über die Performance für False Positives und False Negatives.
+
+Um eigene Metriken auf den Testdaten zu erstellen, muss zunächst unter mit der "just_predict.py" Prediciton Masks erstellt werden. Dafür wählt man die gewünschten Gewichte aus und den legt den Pfad zu den Testbildern fest. Dabei wird immer nur eine Klasse getestet, die in der Variable "object_class" festgelegt wird. In diesem Fall ist das solar_panel. Außerdem führt man unter "performance" "labels2masks" aus. Hier muss der Pfad zu dem Ordner mit den Labeln im Testdatensatz festgelet werden. Danach sollten die Masken mit der Vorhersage des Models im Ordner "output" und die Ground Truth Masken im Ordner "masks" gespeichert sein. Diese können visuell inspiziert werden, um einen ersten Eindruck zu bekommen. Die Masken sollten sich ähneln und müssen dieselben Namen haben.
 Unter "perfomrance/average_metrics" werden dann jeweils die Pfade zu den beiden Ordnern angegeben und dieses Script ausgeführt. Dabei werden die Metriken im Terminal ausgegeben:
 
 ![Metriken](images/metriken.png)
