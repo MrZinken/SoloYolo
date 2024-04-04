@@ -54,47 +54,46 @@ def calculate_f1_score(precision, recall):
 
     return f1_score
 
-def main():
-    gt_folder = "/home/kai/Desktop/masks"
-    pred_folder = "/home/kai/Desktop/output"
 
-    gt_files = os.listdir(gt_folder)
-    pred_files = os.listdir(pred_folder)
+gt_folder = "/home/kai/Desktop/masks"
+pred_folder = "/home/kai/Desktop/output"
 
-    # Initialize lists to store metrics
-    iou_values = []
-    pixel_accuracy_values = []
-    precision_values = []
-    recall_values = []
-    f1_score_values = []
+gt_files = os.listdir(gt_folder)
+pred_files = os.listdir(pred_folder)
 
-    for gt_file, pred_file in zip(gt_files, pred_files):
-        gt_image = np.array(Image.open(os.path.join(gt_folder, gt_file)).convert('L'))  # Convert to grayscale
-        pred_image = np.array(Image.open(os.path.join(pred_folder, pred_file)).convert('L'))  # Convert to grayscale
+# Initialize lists to store metrics
+iou_values = []
+pixel_accuracy_values = []
+precision_values = []
+recall_values = []
+f1_score_values = []
 
-        iou, pixel_accuracy = calculate_iou_accuracy(gt_image, pred_image)
-        iou_values.append(iou)
-        pixel_accuracy_values.append(pixel_accuracy)
+for gt_file, pred_file in zip(gt_files, pred_files):
+    gt_image = np.array(Image.open(os.path.join(gt_folder, gt_file)).convert('L'))  # Convert to grayscale
+    pred_image = np.array(Image.open(os.path.join(pred_folder, pred_file)).convert('L'))  # Convert to grayscale
 
-        precision, recall = calculate_precision_recall(gt_image, pred_image)
-        precision_values.append(precision)
-        recall_values.append(recall)
+    iou, pixel_accuracy = calculate_iou_accuracy(gt_image, pred_image)
+    iou_values.append(iou)
+    pixel_accuracy_values.append(pixel_accuracy)
 
-        f1_score = calculate_f1_score(precision, recall)
-        f1_score_values.append(f1_score)
+    precision, recall = calculate_precision_recall(gt_image, pred_image)
+    precision_values.append(precision)
+    recall_values.append(recall)
 
-    # Calculate average metrics
-    avg_iou = np.nanmean(iou_values)
-    avg_pixel_accuracy = np.mean(pixel_accuracy_values)
-    avg_precision = np.mean(precision_values)
-    avg_recall = np.mean(recall_values)
-    avg_f1_score = np.mean(f1_score_values)
+    f1_score = calculate_f1_score(precision, recall)
+    f1_score_values.append(f1_score)
 
-    print("Average IoU:", avg_iou)
-    print("Average Pixel Accuracy:", avg_pixel_accuracy)
-    print("Average Precision:", avg_precision)
-    print("Average Recall:", avg_recall)
-    print("Average F1 Score:", avg_f1_score)
+# Calculate average metrics
+avg_iou = np.nanmean(iou_values)
+avg_pixel_accuracy = np.mean(pixel_accuracy_values)
+avg_precision = np.mean(precision_values)
+avg_recall = np.mean(recall_values)
+avg_f1_score = np.mean(f1_score_values)
 
-if __name__ == "__main__":
-    main()
+print("Average IoU:", avg_iou)
+print("Average F1 Score:", avg_f1_score)
+print("Average Precision:", avg_precision)
+print("Average Recall:", avg_recall)
+print("Average Pixel Accuracy:", avg_pixel_accuracy)
+
+
