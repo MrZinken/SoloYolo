@@ -64,7 +64,7 @@ def predict(image_path, object_class = 0):
 
 
 # load a custom model
-model = YOLO('/home/kai/Documents/SoloYolo/runs/segment/train2/weights/best.pt')
+model = YOLO('/home/kai/Documents/SoloYolo/runs/segment/train6/weights/best.pt')
 # Input and output folders
 input_image_path = '/home/kai/Desktop/beispiel.jpg'
 input_image_folder = '/home/kai/Desktop/Downloads/test/images'

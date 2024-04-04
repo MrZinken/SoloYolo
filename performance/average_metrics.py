@@ -2,10 +2,10 @@ import os
 import numpy as np
 from PIL import Image
 
-def calculate_metrics(gt_image, pred_image):
+def calculate_iou_accuracy(gt_image, pred_image):
     # Invert colors to make labeled area (foreground) black and background white
-    gt_image = 255 - gt_image
-    pred_image = 255 - pred_image
+    #gt_image = 255 - gt_image
+    #pred_image = 255 - pred_image
 
     # Initialize metrics
     intersection = np.sum(np.logical_and(gt_image, pred_image))
@@ -13,8 +13,16 @@ def calculate_metrics(gt_image, pred_image):
     correct_pixels = np.sum(gt_image == pred_image)
     total_pixels = gt_image.size
 
-    # Calculate metrics
-    iou = intersection / union if union > 0 else 0
+    # Check if both images are empty
+    if np.sum(gt_image) == 0 and np.sum(pred_image) == 0:
+        iou = np.nan  # Set IoU to NaN to indicate undefined
+    else:
+        # Calculate IoU only if union is greater than 0
+        if union > 0:
+            iou = intersection / union
+        else:
+            iou = np.nan  # Set IoU to NaN to indicate undefined
+
     pixel_accuracy = correct_pixels / total_pixels
 
     return iou, pixel_accuracy
@@ -64,7 +72,7 @@ def main():
         gt_image = np.array(Image.open(os.path.join(gt_folder, gt_file)).convert('L'))  # Convert to grayscale
         pred_image = np.array(Image.open(os.path.join(pred_folder, pred_file)).convert('L'))  # Convert to grayscale
 
-        iou, pixel_accuracy = calculate_metrics(gt_image, pred_image)
+        iou, pixel_accuracy = calculate_iou_accuracy(gt_image, pred_image)
         iou_values.append(iou)
         pixel_accuracy_values.append(pixel_accuracy)
 
@@ -76,7 +84,7 @@ def main():
         f1_score_values.append(f1_score)
 
     # Calculate average metrics
-    avg_iou = np.mean(iou_values)
+    avg_iou = np.nanmean(iou_values)
     avg_pixel_accuracy = np.mean(pixel_accuracy_values)
     avg_precision = np.mean(precision_values)
     avg_recall = np.mean(recall_values)
