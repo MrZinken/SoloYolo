@@ -2,10 +2,11 @@ import os
 import numpy as np
 from PIL import Image
 
+
 def calculate_iou_accuracy(gt_image, pred_image):
     # Invert colors to make labeled area (foreground) black and background white
-    #gt_image = 255 - gt_image
-    #pred_image = 255 - pred_image
+    # gt_image = 255 - gt_image
+    # pred_image = 255 - pred_image
 
     # Initialize metrics
     intersection = np.sum(np.logical_and(gt_image, pred_image))
@@ -26,6 +27,7 @@ def calculate_iou_accuracy(gt_image, pred_image):
     pixel_accuracy = correct_pixels / total_pixels
 
     return iou, pixel_accuracy
+
 
 def calculate_precision_recall(gt_image, pred_image):
     # True Positives (TP): Predicted foreground pixels that are also foreground in ground truth
@@ -48,9 +50,11 @@ def calculate_precision_recall(gt_image, pred_image):
 
     return precision, recall
 
+
 def calculate_f1_score(precision, recall):
     # Calculate F1 Score
-    f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+    f1_score = 2 * (precision * recall) / (precision +
+                                           recall) if (precision + recall) > 0 else 0
 
     return f1_score
 
@@ -69,8 +73,11 @@ recall_values = []
 f1_score_values = []
 
 for gt_file, pred_file in zip(gt_files, pred_files):
-    gt_image = np.array(Image.open(os.path.join(gt_folder, gt_file)).convert('L'))  # Convert to grayscale
-    pred_image = np.array(Image.open(os.path.join(pred_folder, pred_file)).convert('L'))  # Convert to grayscale
+    # Convert to grayscale
+    gt_image = np.array(Image.open(
+        os.path.join(gt_folder, gt_file)).convert('L'))
+    pred_image = np.array(Image.open(os.path.join(
+        pred_folder, pred_file)).convert('L'))  # Convert to grayscale
 
     iou, pixel_accuracy = calculate_iou_accuracy(gt_image, pred_image)
     iou_values.append(iou)
@@ -95,5 +102,3 @@ print("Average F1 Score:", avg_f1_score)
 print("Average Precision:", avg_precision)
 print("Average Recall:", avg_recall)
 print("Average Pixel Accuracy:", avg_pixel_accuracy)
-
-

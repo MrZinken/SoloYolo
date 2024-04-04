@@ -1,8 +1,8 @@
 task: segment
 mode: train
 model: yolov8l-seg.pt
-data: /home/kai/Documents/solar/15/data.yaml
-epochs: 180
+data: /home/kai/Documents/solar/v13/data.yaml
+epochs: 165
 time: null
 patience: 100
 batch: 13
@@ -13,7 +13,7 @@ cache: false
 device: cuda
 workers: 8
 project: null
-name: train2
+name: train8
 exist_ok: false
 pretrained: true
 optimizer: auto
@@ -102,4 +102,4 @@ erasing: 0.4
 crop_fraction: 1.0
 cfg: null
 tracker: botsort.yaml
-save_dir: runs/segment/train2
+save_dir: runs/segment/train8
