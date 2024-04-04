@@ -1,5 +1,5 @@
 # SoloYolo
-## Framweork, das aus Überflug-Bildern der Stadt Bonn Objekte identifiziert und diese zu einem GeoPackage zusammensetzt. In diesem Fall wurde das Netz auf Solarpaneele trainiert.
+## Framweork, das aus Luftbilder der Stadt Bonn Objekte segmentiert und diese zu einem GeoPackage zusammensetzt. In diesem Fall wurde das Netz auf Solarpaneele trainiert.
 
 ![layer](images/mitlayer.png)
 
@@ -131,6 +131,28 @@ Unter "perfomrance/average_metrics" werden dann jeweils die Pfade zu den beiden 
 ![Metriken](images/metriken.png)
 
 Ist die Performance zufriedenstellend kann, man mit der Anwendung des Models fortfahren, um ein Geolayer aus den Daten zu erstellen.
+
+Hier noch der Vergleich von verschiedenen Modellen:
+
+
+| Model | Dataset Size | Epochs | Batch Size | Average IoU | Average F1 Score | Average Precision | Average Recall | Average Pixel Accuracy |
+|-------|--------------|--------|------------|-------------|------------------|-------------------|----------------|-----------------------|
+| v8m   | 400          | 30     | 15         | 0.6416      | 0.5867           | 0.6278            | 0.5722         | 0.9777                |
+| v8m   | 500          | 100    | 20         | 0.7306      | 0.6553           | 0.6705            | 0.6512         | 0.9904                |
+| v8l   | 800          | 160    | 13         | 0.8735      | 0.7756           | 0.7883            | 0.7670         | 0.9953                |
+| v8l   | 900          | 180    | 13         | 0.8393      | 0.7286           | 0.7338            | 0.7279         | 0.9943                |
+| v9c   | 9000         | 120    | 12         | 0.8381      | 0.7354           | 0.7421            | 0.7305         | 0.9944                |
+
+Und hier die Performance mit verschiedenen Konfidenzen:
+
+| Model | Confidence | Average IoU | Average F1 Score | Average Precision | Average Recall | Average Pixel Accuracy |
+|-------|------------|-------------|------------------|-------------------|----------------|-----------------------|
+| v9c   | 0.3        | 0.8391      | 0.7359           | 0.7420            | 0.7314         | 0.9944                |
+| v9c   | 0.4        | 0.8390      | 0.7358           | 0.7420            | 0.7313         | 0.9944                |
+| v9c   | 0.5        | 0.8381      | 0.7354           | 0.7421            | 0.7305         | 0.9944                |
+| v9c   | 0.6        | 0.8066      | 0.7092           | 0.7184            | 0.7020         | 0.9936                |
+| v9c   | 0.7        | 0.8001      | 0.6961           | 0.7074            | 0.6873         | 0.9931                |
+
 
 ## Anwendung
 
