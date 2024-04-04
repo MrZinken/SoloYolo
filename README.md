@@ -104,7 +104,7 @@ Mit "device" kann man festlegen, ob mit der GPU trainiert werden soll. Unterstü
 
 Mit "data" wird der Pfad zur "data.yaml" angegeben. Diese Datei liegt im Datensatz Ordner.
 
-"epochs" gibt die Anzahl an Trainingsläufen an. Multipliziert man diese Zahl mit "batch", erhält man die Anzahl an Bildern, die das neuronale Netz sehen wird. Diese sollte nie unter der Anzahl an Bildern liegen, die im Datensatz liegen. Hier sollte ein möglichst hoher Wert gewählt werden. Sollte kein Performancegewinn mehr auftreten, bricht das Training frühzeitig ab.
+"epochs" gibt die Anzahl an Trainingsläufen an. Pro Epoche werden dem Neuronalen Netz alle Bilder einmal gezeigt. Es hat sich gezeigt, dass es sinnvoll ist, mit vielen Epochen zu trainieren, da sich die Performance dadurch deutlich stiegern lässt. Hier sollte ein möglichst hoher Wert gewählt werden. Bei einer zu hohen Anzahl an Epochen besteht die Gefahr des Overfitting. Einfach gesagt lernt das Model die Trainingsdaten dabei auswendig, entwickelt aber kein Verständnis von dem dahinterliegenden Konzept und ist somit nicht robust gegenüber neuen Daten. Dieses Framerwork erkennt dies jedoch und bricht das Training ab, sollte kein Performancegewinn mehr auftreten.
 
 Schließlich gibt "imgsz" die Größe der Bilder an. Hier ist 640 der default Wert.
 
@@ -114,12 +114,18 @@ Ist das Training abgeschlossen, werden die Gewichte und einige Metriken unter "r
 
 ## Performance
 
-Im Ordner runs/segment/trainx findet man automatisch erstellte Metriken. Die normalisierte Konfusion Matrix ist ein geeigneter Einstieg um die Performance des Models zu evaluieren. Dabei sollte der Schwerpunkt auf der Diagonalen liegen. Hier zeigt sich, dass das Model in dieser Anwendung häufig Probleme mit False Positives hat.
-Die Mean Average Precision (mAP) gibt eine Idee von der Präzision der Zuordung über alle Klassen an.
-Intersection over Union (IoU) ist eine Metrik um zu zeigen, wie gut die erstellte Maske über dem Ground Truth liegt.
-Der F1 Score Ergibt sich aus der dem Recall und der Precision und ist gibt somit einen ersten Eindruck über die Performance für False Positives und False Negatives.
+Sobald das Training beendet wurde, ist es wichtig einen ersten Eindruck des Trainings zu gewinnen. Einige grafische dargestellte Metriken, die automatisch von Ultraylitcs bereitgestellt werden, findet man unter runs/segment/trainx. Hier sind die unter "resluts.png" gespeicherten Graphen von Relevanz. 
 
-Um eigene Metriken zu erstellen, muss zunächst unter mit der "just_predict.py" Prediciton Masks erstellt werden. Dafür wählt man die gewünschten Gewichte aus und den legt den Pfad zu den Testbildern fest. Dabei wird immer nur eine Klasse getestet, die in der Variable "object_class" festgelegt wird. In diesem Fall ist das solar_panel. Außerdem führt man unter "performance" "labels2masks" aus. Hier muss der Pfad zu dem Ordner mit den Labeln im Testdatensatz festgelet werden. Danach sollten die Masken mit der Vorhersage des Models im Ordner "output" und die Ground Truth Masken im Ordner "masks" gespeichert sein. Diese können visuell inspiziert werden, um einen ersten Eindruck zu bekommen. Die Masken sollten sich ähneln und müssen dieselben Namen haben.
+![results](images/results.png) 
+Der Segmentation Loss, von dem Kasten rot umrandet, ist für die Segmentation die schwierigste und damit relevanteste Metrik. Diese sollte konstant sinken. Dass der Segmentation Loss auf den Validierungsdaten leicht steigt, ist nicht optimal, aber bei dem schwachen Anstieg kein großes Problem. Dennoch kann dies ein Hinweis auf ein Problem sein. So kann es sein, dass eine Klasse overfitted wird, während die anderen noch deutlich besser klassifiziert werden.
+Tendenziell sollen die acht linken Graphen einen Abwärtstrend zeigen, während die rechten Graphen steigen sollten.
+
+Die normalisierte Konfusion Matrix ist ein der nächste Punkt, um die Performance des Models zu evaluieren. Dabei sollte der Schwerpunkt auf der Diagonalen liegen. Hier zeigt sich, dass das Model in dieser Anwendung häufig Probleme mit False Positives hat.
+Die Mean Average Precision (mAP) gibt eine Idee von der Präzision der Zuordnung über alle Klassen an.
+Intersection over Union (IoU) ist eine Metrik um zu zeigen, wie gut die erstellte Maske über dem Ground Truth liegt.
+Der F1 Score ergibt sich aus der dem Recall und der Precision und ist gibt somit einen ersten Eindruck über die Performance für False Positives und False Negatives.
+
+Um eigene Metriken auf den Testdaten zu erstellen, muss zunächst unter mit der "just_predict.py" Prediciton Masks erstellt werden. Dafür wählt man die gewünschten Gewichte aus und den legt den Pfad zu den Testbildern fest. Dabei wird immer nur eine Klasse getestet, die in der Variable "object_class" festgelegt wird. In diesem Fall ist das solar_panel. Außerdem führt man unter "performance" "labels2masks" aus. Hier muss der Pfad zu dem Ordner mit den Labeln im Testdatensatz festgelet werden. Danach sollten die Masken mit der Vorhersage des Models im Ordner "output" und die Ground Truth Masken im Ordner "masks" gespeichert sein. Diese können visuell inspiziert werden, um einen ersten Eindruck zu bekommen. Die Masken sollten sich ähneln und müssen dieselben Namen haben.
 Unter "perfomrance/average_metrics" werden dann jeweils die Pfade zu den beiden Ordnern angegeben und dieses Script ausgeführt. Dabei werden die Metriken im Terminal ausgegeben:
 
 ![Metriken](images/metriken.png)
@@ -143,5 +149,16 @@ Unter "target_srs" kann man das Georeference System festlegen. Dies ist für NRW
 Sollte nicht der ganze Ordner analysiert werden, kann man mit "found_start" = False und "start_at_name" festlegen, ab welchem Dateinamen vorhergesagt werden soll.
 
 Hat man alle Variablen angepasst und lässt das Programm laufen, werden die einzelnen Tiffs zunächst auf eine Größe von 9600 mal 9600 ins JPG Format gebracht und dann in 225 Bilder zerschnitten. Die Solarpaneele werden dann in den einzelnen Bildern markiert und als Binärmaske ausgegeben. Diese Binärmasken, werden dann wieder zu einem Bild zusammengesetzt und Masken, die nahe beieinander liegen, werden verbunden. Dieser Schritt ist nötig, da es an Bildrändern öfter zu nicht erkannten Bereichen kommt. Diese zusammengesetzen Bilder entsprechen dann den Ursprungs Tiffs. Zusammen mit den Wordlfiles wird daraus dann ein Geopackage erstellt. Diese werden im Output Ordner gespeichert und nicht gelöscht. Sind alle Ausgangsbilder analysiert worden, werden die Geopackages zu einem einzelnen Geopackage zusammengesetzt.
+
+### Nachbearbeitung
+
+Da Verfahren im Bereich des maschinellen Lernens nicht fehlerfrei sind, kann die Qualität der finalen Daten noch durch Nachbearbeitung verbessert werden. Hier sollen einige Funktionen in QGis erläutert werden, mit denen der Vektorlayer so verändert wird, dass False Positives herausgefiltert werden, eigentlich zusammenhängende Features vereinigt werden und Defekte korrigiert werden.
+Zunächst sollten Defekte mit der Funktion "v.clean" bereinigt werden, damit die folgenden Funktionen sauber arbeiten können. Dies kann mit Default Werten ausgeführt werden. 
+Anschließend sollten alle Features, die kleiner als 0.5 Quadratmeter sind, herausgefiltert werden, da es sich dabei sehr wahrscheinlich um falsch erkannte Objekte handelt. ??????
+Außerdem sollten alle Features entfernt werden, die nicht auf Gebäudeflächen liegen. Im urbanen Kontext liegen fast alle Solarpaneele auf Dachflächen. Dazu benötigt man einen Layer mit allen Gebäuden.?????
+Danach können Features vereinigt werden, indem man "Buffer" mit einer Stärke von 0,02 m anwendet und die sich nun überlappenden Features mittels "Dissolve" vereinigt. Anschließend muss Buffer mit -0,02 m angewendet werden, um zu der ursprünglichen Größe der Features zu gelangen.
+Diesen Layer kann man mittels "Simplify" vereinfachen. Dabei sollte ein Wert von etwa 0,1 m gewählt werden. Durch diese Glättung wird die Speichergröße des Datensatzes nicht nur verkleinert, sonder nähert sich deutlich den reellen Flächen an.
+
+
 
 Glückwunsch, damit wurde ein Layer von dem gesuchten Objekt erstellt, das nun beliebig analysiert werden kann.
