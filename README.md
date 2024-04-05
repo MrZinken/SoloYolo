@@ -22,7 +22,7 @@ Falls die GPU Cuda-Treiber unterstützt, sollten diese noch installiert werden. 
 
 Außerdem wird noch ein Account bei [Roboflow](https://roboflow.com/) benötigt. Hier kann man sehr intuitiv die Daten labeln und einen passenden Datensatz generieren. Dafür reicht eine kostenlose Mitgliedschaft.
 
-Sollte die Einrichtung geklappt haben, ist der schwerste Teil geschafft. Bei Problemen sind Google oder ChatGPT eine große Hilfe.
+Sollte die Einrichtung geklappt haben, ist der komplizierteste Teil geschafft. Bei Problemen sind Google oder ChatGPT eine große Hilfe.
 
 ## Aufbau des Projekts
 Projekte im Bereich des maschinellen Lernens teilen sich grundsätzlich auf in:
@@ -38,6 +38,7 @@ Die Qualität des Datensatzes ist absolut entscheidend für die Performance des 
 ### Ausgangspunkt und Ziel
 Als Ausgangspunkt sind hier konkret Tiff Bilder mit einer Auflösung von 10000 x 10000 Pixeln gegeben und am Ende erhält man einen Datensatz von gelabelten/annotierten Bildern, die das zu detektierende Objekt, sowie typischen False Positives enthalten. False Positives sind Objekte die von dem Model erkannt werden, weil sie ähnliche Eigenschaften aufweisen, aber eben nicht der Klasse entsprechen, die man segmentieren möchte. Bei der Erkennung von Solarpaneelen sind das zum Beispiel Solarthermie Anlagen, Dachfenster und Überdachungen, aber auch blaue Autos oder Bahnschienen typische False Positives.
 Welche Objekte zu False Positives führen ist nicht direkt vorherzusagen. Darauf kann bei einem iterativen Vorgehen eingegangen werden, indem die False Positives in den Datensatz aufgenommen werden. Um eine noch stärkere Abgrenzung zu erreichen, kann man für "starke" False Positives eine eigene Klasse erstellen, indem man sie extra labelt. Dadurch lernt das Model diese besser zu unterscheiden. Für Solarpaneele wurden die Klassen Überdachung und Solarthermie verwendet. Das folgende Bild enthält kein Solarpanel und hilft dabei zu verstehen, vor welcher Herausforderung man steht, wenn man im urbanen Umfeld selektiv Solarpaneele detektieren will.
+
 ![false positives](images/false_positives.jpg)
 
 ### Konkretes Vorgehen
